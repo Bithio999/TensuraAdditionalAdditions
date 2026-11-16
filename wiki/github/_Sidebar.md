@@ -69,6 +69,7 @@
 - [Metis](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Additions-Metis)
 - [Tyche](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Additions-Tyche)
 - [Laplace](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Additions-Laplace)
+- [Netrunner](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Additions-Netrunner)
 
 **NPCs and structures**
 

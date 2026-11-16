@@ -20,6 +20,8 @@ Use Tensura’s normal Ability Selection menu. Ultimate synthesis combines fully
 
 [Critical Merchant](Additions-Critical-Merchant.md) compounds critical damage with chained coin flips and prepares ten guaranteed critical hits.
 
+[Netrunner](Additions-Netrunner.md) opens a held scanner with five quickhacks and a target-bound upload queue.
+
 ## Ultimate synthesis
 
 [Hephaestus, Lord of the Forge](Additions-Hephaestus.md) combines fully mastered Prospector and Godly Craftsman after awakening and a personal forging achievement. No EP requirement. It adds Divine Forge, Living Arsenal and Magnum Opus.

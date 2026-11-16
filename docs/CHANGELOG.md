@@ -1,5 +1,12 @@
 # Changelog
 
+## Additions 1.31.0 — Netrunner
+
+- Add the Netrunner Unique Skill with one held scanner: Short Circuit, Synapse Burnout, Reboot Optics, Cripple Movement and Suicide.
+- Queue up to three paid, target-bound uploads. Each quickhack has an independent persisted cooldown; uploads continue after releasing the scanner. Respect targeting, PvP, status interference and native combat defenses.
+- Render the approved cyan/red scanner directly over the live world, with thin closed panel borders, an animated iris and entry sweep, sliding panels, selection sheen and overhead upload progress. Preserve native vitals and hide overlapping ability/appraisal/chat layers only while scanning.
+- Add original glyph assets and portrait, licensed Rajdhani typography, F8 documentation, native/client regressions and the gameplay wiki entry. Exclude the held interface from Metis auto-casting and its inline magicule costs from Fettered Human starting rolls.
+
 ## Additions 1.30.0 — Expanded Equation Editor
 
 - Extend Laplace’s catalogue to learned Tensura Reincarnated and Additional Additions skills, magic, Battlewills and passive modes. Other addons remain excluded.

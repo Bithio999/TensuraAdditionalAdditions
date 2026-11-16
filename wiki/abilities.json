@@ -1627,5 +1627,71 @@
     "secondary_damage_id": null,
     "anchor": "equation-editor",
     "mod": "additions"
+  },
+  {
+    "skill": "Additions-Netrunner",
+    "name": "Quickhack",
+    "tier": "Unique",
+    "kind": "Active, Hold",
+    "damage": "None",
+    "damage_id": null,
+    "secondary_damage_id": null,
+    "anchor": "quickhack",
+    "mod": "additions"
+  },
+  {
+    "skill": "Additions-Netrunner",
+    "name": "Short Circuit",
+    "tier": "Unique",
+    "kind": "Queued upload",
+    "damage": "Lightning (HP)",
+    "damage_id": "tensura:lightning",
+    "secondary_damage_id": null,
+    "anchor": "short-circuit",
+    "mod": "additions"
+  },
+  {
+    "skill": "Additions-Netrunner",
+    "name": "Synapse Burnout",
+    "tier": "Unique",
+    "kind": "Queued upload",
+    "damage": "Mind Crush (SHP)",
+    "damage_id": "tensura:mind_crush",
+    "secondary_damage_id": null,
+    "anchor": "synapse-burnout",
+    "mod": "additions"
+  },
+  {
+    "skill": "Additions-Netrunner",
+    "name": "Reboot Optics",
+    "tier": "Unique",
+    "kind": "Queued upload",
+    "damage": "None",
+    "damage_id": null,
+    "secondary_damage_id": null,
+    "anchor": "reboot-optics",
+    "mod": "additions"
+  },
+  {
+    "skill": "Additions-Netrunner",
+    "name": "Cripple Movement",
+    "tier": "Unique",
+    "kind": "Queued upload",
+    "damage": "None",
+    "damage_id": null,
+    "secondary_damage_id": null,
+    "anchor": "cripple-movement",
+    "mod": "additions"
+  },
+  {
+    "skill": "Additions-Netrunner",
+    "name": "Suicide",
+    "tier": "Unique",
+    "kind": "Queued upload",
+    "damage": "Mind Crush (HP)",
+    "damage_id": "tensura:mind_crush",
+    "secondary_damage_id": null,
+    "anchor": "suicide",
+    "mod": "additions"
   }
 ]

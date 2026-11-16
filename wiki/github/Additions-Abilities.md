@@ -27,6 +27,12 @@ Find a move below, then open its entry for targeting, damage, cost and cooldown.
 | [Open Map](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Additions-Marauders-Map#open-map) | [Marauder's Map](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Additions-Marauders-Map) | Active, Press | None |
 | [Compound Interest](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Additions-Critical-Merchant#compound-interest) | [Critical Merchant](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Additions-Critical-Merchant) | Passive, Toggle | Original attack’s damage type |
 | [Guaranteed Profit](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Additions-Critical-Merchant#guaranteed-profit) | [Critical Merchant](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Additions-Critical-Merchant) | Active, Press | None |
+| [Quickhack](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Additions-Netrunner#quickhack) | [Netrunner](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Additions-Netrunner) | Active, Hold | None |
+| [Short Circuit](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Additions-Netrunner#short-circuit) | [Netrunner](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Additions-Netrunner) | Queued upload | Lightning (HP) |
+| [Synapse Burnout](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Additions-Netrunner#synapse-burnout) | [Netrunner](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Additions-Netrunner) | Queued upload | Mind Crush (SHP) |
+| [Reboot Optics](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Additions-Netrunner#reboot-optics) | [Netrunner](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Additions-Netrunner) | Queued upload | None |
+| [Cripple Movement](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Additions-Netrunner#cripple-movement) | [Netrunner](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Additions-Netrunner) | Queued upload | None |
+| [Suicide](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Additions-Netrunner#suicide) | [Netrunner](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Additions-Netrunner) | Queued upload | Mind Crush (HP) |
 
 ## Ultimate
 

@@ -27,6 +27,12 @@ Find a move below, then open its entry for targeting, damage, cost and cooldown.
 | [Open Map](Additions-Marauders-Map.md#open-map) | [Marauder's Map](Additions-Marauders-Map.md) | Active, Press | None |
 | [Compound Interest](Additions-Critical-Merchant.md#compound-interest) | [Critical Merchant](Additions-Critical-Merchant.md) | Passive, Toggle | Original attack’s damage type |
 | [Guaranteed Profit](Additions-Critical-Merchant.md#guaranteed-profit) | [Critical Merchant](Additions-Critical-Merchant.md) | Active, Press | None |
+| [Quickhack](Additions-Netrunner.md#quickhack) | [Netrunner](Additions-Netrunner.md) | Active, Hold | None |
+| [Short Circuit](Additions-Netrunner.md#short-circuit) | [Netrunner](Additions-Netrunner.md) | Queued upload | Lightning (HP) |
+| [Synapse Burnout](Additions-Netrunner.md#synapse-burnout) | [Netrunner](Additions-Netrunner.md) | Queued upload | Mind Crush (SHP) |
+| [Reboot Optics](Additions-Netrunner.md#reboot-optics) | [Netrunner](Additions-Netrunner.md) | Queued upload | None |
+| [Cripple Movement](Additions-Netrunner.md#cripple-movement) | [Netrunner](Additions-Netrunner.md) | Queued upload | None |
+| [Suicide](Additions-Netrunner.md#suicide) | [Netrunner](Additions-Netrunner.md) | Queued upload | Mind Crush (HP) |
 
 ## Ultimate
 

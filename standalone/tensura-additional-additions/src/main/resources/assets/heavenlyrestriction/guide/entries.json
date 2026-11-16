@@ -1249,6 +1249,52 @@
           ]
         }
       ]
+    },
+    {
+      "id": "netrunner",
+      "title": "Netrunner",
+      "category": "Skills",
+      "summary": "Unique · Hold a scanner to queue five target-bound quickhacks.",
+      "icon": "heavenlyrestriction:textures/skill/netrunner.png",
+      "keywords": [
+        "quickhack",
+        "scanner",
+        "short circuit",
+        "synapse burnout",
+        "reboot optics",
+        "cripple movement",
+        "suicide",
+        "upload"
+      ],
+      "related": [
+        "split-mind",
+        "archivist"
+      ],
+      "sections": [
+        {
+          "title": "Quickhack · Active, Hold",
+          "lines": [
+            "Equip Quickhack in a native Tensura ability slot and hold its key. Aim at a living target within 32 blocks. Scroll to select; left-click queues; right-click cancels the latest upload. Release to close. Up to three uploads execute in order and follow their targets, including after closing the scanner.",
+            "Magicules are paid when queued; cancellation or a lost connection does not refund them. Each hack has an independent cooldown. Targets must be visible when linked and remain within 48 blocks during upload. Allies and protected players are excluded. Mastery makes uploads 20% faster."
+          ]
+        },
+        {
+          "title": "Damage and control",
+          "lines": [
+            "Short Circuit: 120 Lightning HP damage, ×1.5 against a currently casting target. Cost 200 magicules; upload 2 seconds; cooldown 8 seconds.",
+            "Synapse Burnout: 70–210 Mind Crush SHP damage, increasing with the target’s missing magicules. Spiritual Attack Resistance halves it; Spiritual Attack Nullification blocks it. Cost 320; upload 2.5 seconds; cooldown 12 seconds.",
+            "Reboot Optics: disrupt vision and mob targeting for 5 seconds. No direct damage. Cost 160; upload 1.5 seconds; cooldown 10 seconds.",
+            "Cripple Movement: root movement and prevent upward motion for 3 seconds without reducing attack speed. No direct damage. Cost 240; upload 2 seconds; cooldown 12 seconds.",
+            "Suicide: resistible Mind Crush HP damage equal to 200% maximum HP on ordinary mobs, or 45% on players and tagged bosses. Native defenses and fatal-hit regeneration apply. Cost 900; upload 5 seconds; cooldown 60 seconds."
+          ]
+        },
+        {
+          "title": "Obtaining",
+          "lines": [
+            "Normal reincarnation Unique pool or the Archivist’s one-time mentorship. Excluded from Fettered Human starting rolls because quickhacks consume magicules. The held scanner cannot be assigned to Metis auto-casting."
+          ]
+        }
+      ]
     }
   ]
 }

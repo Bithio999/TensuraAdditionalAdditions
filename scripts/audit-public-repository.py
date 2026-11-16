@@ -37,6 +37,9 @@ def inspect(data: bytes, path: str, issues: set[tuple[str, str]], literals: list
     except UnicodeError:
         return
     for email in EMAIL.findall(text):
+        # Required public third-party font copyright, not a contributor identity.
+        if path.endswith('assets/heavenlyrestriction/font/rajdhani-license.txt') and email.lower() == ('info' + '@' + 'indiantypefoundry.com'):
+            continue
         domain = email.rsplit('@', 1)[1].lower()
         if not (domain.endswith('.invalid') or domain in {'example.com', 'example.org',
                 'example.net', 'users.noreply.github.com', 'noreply.github.com'}):

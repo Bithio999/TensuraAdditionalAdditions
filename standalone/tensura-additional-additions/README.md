@@ -2,12 +2,14 @@
 
 An independent **Tensura: Reincarnated** addon for **Minecraft 1.21.1 / NeoForge**. It focuses on Heavenly Restriction, Battlewills and world travel.
 
-[Download 1.30.0](../../releases/TensuraAdditionalAdditions-1.30.0.jar) · [Wiki](../../wiki/pages/TensuraAdditionalAdditions.md) · [Gameplay guide](docs/GUIDE.md) · [Validation](docs/VALIDATION-1.30.0.md)
+[Download 1.31.0](../../releases/TensuraAdditionalAdditions-1.31.0.jar) · [Wiki](../../wiki/pages/TensuraAdditionalAdditions.md) · [Gameplay guide](docs/GUIDE.md) · [Validation](docs/VALIDATION-1.31.0.md)
 
 
-**New in 1.30.0:** Laplace’s Equation Editor now covers learned skills, magic and Battlewills from Tensura Reincarnated and Additional Additions, including passive and multi-mode actions. Edit the exposed numerical effects and resource payment on the equation board; fixed mechanics are labelled. Other addons are outside this release’s scope.
+**New in 1.31.0:** Netrunner adds a held scanner, five quickhacks and a three-slot target-bound upload queue. Thin closed borders, scan-in/out motion, selection sheen and overhead upload animations are rendered directly in Minecraft. [Netrunner guide](../../wiki/pages/Additions-Netrunner.md).
 
 ## Content
+
+- **Netrunner**, a held quickhack scanner with five hacks, live target data and a three-slot upload queue. [Skill guide](../../wiki/pages/Additions-Netrunner.md).
 
 - **Tyche, Lord of Fortune**, an Ultimate synthesized from Critical Merchant + Tuner. Loaded Dice, Guaranteed Dividend, a timed low-HP/SHP buff and damage-type-based full revival with a five-minute history window. [Skill guide](../../wiki/pages/Additions-Tyche.md).
 
@@ -46,7 +48,7 @@ Use **Java 21**, **Minecraft 1.21.1** and **NeoForge 21.1.209+**. Install:
 
 1. **Tensura: Reincarnated 2.0.1.3 or 2.0.1.4** and its required libraries: ManasCore 4.0.0.2, Architectury 13.0.8+, SmartBrainLib and TerraBlender.
 2. **GeckoLib 4.9.2+**, within the 4.x series.
-3. **TensuraAdditionalAdditions-1.30.0.jar**.
+3. **TensuraAdditionalAdditions-1.31.0.jar**.
 
 Install the addon on both client and server for multiplayer. Parallel World Jumper works only in private single-player. Use this addon **instead of Tensura Myths**; the loader rejects installing both.
 
@@ -68,7 +70,7 @@ python3 scripts/fetch-runtime.py
 ./gradlew build
 ```
 
-Use **Java 21**. Output: `build/libs/TensuraAdditionalAdditions-1.30.0.jar`.
+Use **Java 21**. Output: `build/libs/TensuraAdditionalAdditions-1.31.0.jar`.
 
 - `./gradlew runClient` — development client.
 - `./gradlew runGameTestServer` — native integration checks.

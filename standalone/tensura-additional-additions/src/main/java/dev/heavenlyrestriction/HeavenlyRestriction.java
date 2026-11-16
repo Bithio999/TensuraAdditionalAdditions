@@ -14,6 +14,7 @@ public final class HeavenlyRestriction {
     public static final String ID="heavenlyrestriction";
     private static final Registrar<ManasRace> RACES=RaceAPI.getRaceRegistry();
     private static final Registrar<ManasSkill> SKILLS=SkillAPI.getSkillRegistry();
+    public static final RegistrySupplier<NetrunnerSkill> NETRUNNER=SKILLS.register(id("netrunner"),NetrunnerSkill::new);
     public static final RegistrySupplier<UnboundSkill> UNBOUND=SKILLS.register(id("unbound"),UnboundSkill::new);
     public static final RegistrySupplier<ChainedSkill> CHAINED=SKILLS.register(id("chained"),ChainedSkill::new);
     public static final RegistrySupplier<ParallelWorldJumperSkill> PARALLEL_WORLD_JUMPER=SKILLS.register(id("parallel_world_jumper"),ParallelWorldJumperSkill::new);
@@ -38,6 +39,14 @@ public final class HeavenlyRestriction {
         SKILLS.register(id("sovereign_rebirth"),()->new AuraRegenerationSkill(3)));
     public HeavenlyRestriction(net.neoforged.bus.api.IEventBus modBus,net.neoforged.fml.ModContainer container){
         HeavenlyArsenal.register(modBus);
+        dev.heavenlyrestriction.netrunner.NetrunnerEffects.register(modBus);
+        modBus.addListener(dev.heavenlyrestriction.netrunner.NetrunnerNetwork::register);
+        container.registerConfig(net.neoforged.fml.config.ModConfig.Type.SERVER,dev.heavenlyrestriction.netrunner.NetrunnerConfig.SPEC,"tensura-additions-netrunner.toml");
+        NeoForge.EVENT_BUS.addListener(dev.heavenlyrestriction.netrunner.Netrunner::tick);
+        NeoForge.EVENT_BUS.addListener(dev.heavenlyrestriction.netrunner.Netrunner::cooldowns);
+        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent e)->dev.heavenlyrestriction.netrunner.Netrunner.clear(e.getEntity()));
+        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent e)->dev.heavenlyrestriction.netrunner.Netrunner.clear(e.getEntity()));
+        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.server.ServerStoppingEvent e)->dev.heavenlyrestriction.netrunner.Netrunner.clearAll());
         dev.heavenlyrestriction.mentor.MentorContent.register(modBus,container);
         dev.heavenlyrestriction.forge.ForgeEvents.register(modBus,container);
         modBus.addListener(dev.heavenlyrestriction.metis.MetisNetwork::register);

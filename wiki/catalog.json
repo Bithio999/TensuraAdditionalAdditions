@@ -1317,5 +1317,12 @@
     "category": "Skills",
     "tier": "Ultimate",
     "mod": "additions"
+  },
+  {
+    "slug": "Additions-Netrunner",
+    "title": "Netrunner",
+    "category": "Skills",
+    "tier": "Unique",
+    "mod": "additions"
   }
 ]

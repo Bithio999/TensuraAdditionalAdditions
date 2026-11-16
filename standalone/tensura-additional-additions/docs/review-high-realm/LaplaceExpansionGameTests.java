@@ -122,6 +122,7 @@ public class LaplaceExpansionGameTests {
       }
     }
     try {
+      java.nio.file.Files.createDirectories(java.nio.file.Path.of("/tmp/laplace-expansion"));
       java.nio.file.Files.write(
           java.nio.file.Path.of(
               "/tmp/laplace-expansion/coverage-"

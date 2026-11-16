@@ -19,6 +19,7 @@ public final class MetisAbilities {
             "heavenlyrestriction:metis",
             "heavenlyrestriction:laplace",
             "heavenlyrestriction:split_mind",
+            "heavenlyrestriction:netrunner",
             "heavenlyrestriction:parallel_world_jumper",
             "tensura:pride")
         .contains(i.getSkillId().toString())) return false;

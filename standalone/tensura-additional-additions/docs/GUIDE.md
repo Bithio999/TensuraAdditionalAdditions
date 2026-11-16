@@ -5,6 +5,10 @@ For the in-game version, press **F8**, use **Additions Guide** in the pause menu
 
 [Addon home](../README.md)
 
+## Netrunner
+
+A Unique Skill with a held scanning HUD. Aim within 32 blocks, scroll to choose a quickhack and left-click to queue it; right-click cancels the latest upload. Up to three uploads continue after release. Each pays magicules when queued and uses its own cooldown. [Controls, damage types and defaults](../../../wiki/pages/Additions-Netrunner.md).
+
 ## The High Realm
 
 Requires **5,000,000 actual maximum EP** to enter. Build its **5 × 6 gate** using four Netherite Blocks, twelve Crying Obsidian, one Lodestone (bottom center) and one Amethyst Block (top center). Use one Nether Star on the Lodestone, then stand in the opening for two seconds or use the activated Lodestone.

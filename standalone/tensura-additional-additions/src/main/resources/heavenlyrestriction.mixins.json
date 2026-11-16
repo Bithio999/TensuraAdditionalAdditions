@@ -121,7 +121,11 @@
   "client": [
     "client.RestrictedRaceInfoMixin",
     "client.SchemaProgressMixin",
-    "client.FusionRendererMixin"
+    "client.FusionRendererMixin",
+    "client.NetrunnerMouseMixin",
+    "client.NetrunnerInputMixin",
+    "client.NetrunnerOutlineMixin",
+    "client.NetrunnerNativeHudMixin"
   ],
   "plugin": "dev.heavenlyrestriction.laplace.expand.ParameterMixinPlugin"
 }
