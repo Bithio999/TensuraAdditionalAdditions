@@ -119,31 +119,36 @@ final class ScannerFont {
             + (glow ? "_glow" : "")
             + filtered
             + ".png";
-    var out = g.bufferSource().getBuffer(ScannerMaterial.texture(HeavenlyRestriction.id(path)));
-    var pose = g.pose().last();
-    float pen = x, scale = size / 48, baseline = y + size * .78f;
-    String previous = "";
-    for (var it = s.codePoints().iterator(); it.hasNext(); ) {
-      int cp = it.nextInt();
-      String ch = new String(Character.toChars(cp));
-      var q = f.glyphs.get(cp);
-      if (q == null) continue;
-      pen += f.kerning.getOrDefault(previous + ch, 0f) * scale;
-      float l = pen + q.left * scale,
-          t = baseline + q.top * scale,
-          r = l + q.w * scale,
-          b = t + q.h * scale,
-          u = q.x / 1024,
-          v = q.y / 1024,
-          ue = (q.x + q.w) / 1024,
-          ve = (q.y + q.h) / 1024;
-      out.addVertex(pose, l, t, 0).setUv(u, v).setColor(color);
-      out.addVertex(pose, l, b, 0).setUv(u, ve).setColor(color);
-      out.addVertex(pose, r, b, 0).setUv(ue, ve).setColor(color);
-      out.addVertex(pose, r, t, 0).setUv(ue, v).setColor(color);
-      pen += q.advance * scale + spacing;
-      previous = ch;
-    }
+    var pose = new org.joml.Matrix4f(g.pose().last().pose());
+    ScannerBatch.submit(
+        g,
+        HeavenlyRestriction.id(path),
+        glow ? 2 : 3,
+        out -> {
+          float pen = x, scale = size / 48, baseline = y + size * .78f;
+          String previous = "";
+          for (var it = s.codePoints().iterator(); it.hasNext(); ) {
+            int cp = it.nextInt();
+            String ch = new String(Character.toChars(cp));
+            var q = f.glyphs.get(cp);
+            if (q == null) continue;
+            pen += f.kerning.getOrDefault(previous + ch, 0f) * scale;
+            float l = pen + q.left * scale,
+                t = baseline + q.top * scale,
+                r = l + q.w * scale,
+                b = t + q.h * scale,
+                u = q.x / 1024,
+                v = q.y / 1024,
+                ue = (q.x + q.w) / 1024,
+                ve = (q.y + q.h) / 1024;
+            out.addVertex(pose, l, t, 0).setUv(u, v).setColor(color);
+            out.addVertex(pose, l, b, 0).setUv(u, ve).setColor(color);
+            out.addVertex(pose, r, b, 0).setUv(ue, ve).setColor(color);
+            out.addVertex(pose, r, t, 0).setUv(ue, v).setColor(color);
+            pen += q.advance * scale + spacing;
+            previous = ch;
+          }
+        });
   }
 
   private ScannerFont() {}

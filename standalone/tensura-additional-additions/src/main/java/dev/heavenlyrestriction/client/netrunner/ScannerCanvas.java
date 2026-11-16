@@ -24,6 +24,7 @@ final class ScannerCanvas {
   }
 
   void quad(Point a, Point b, Point c, Point d, int color) {
+    if (opacity <= 0 || (color(color) >>> 24) == 0) return;
     var v = g.bufferSource().getBuffer(RenderType.gui());
     var p = g.pose().last();
     int tint = color(color);
@@ -50,6 +51,7 @@ final class ScannerCanvas {
   }
 
   void stroke(List<Point> p, float width, int color) {
+    if (opacity <= 0 || (color(color) >>> 24) == 0) return;
     width = strokeWidth(width);
     var outer = offset(p, -width / 2);
     var inner = offset(p, width / 2);
@@ -91,17 +93,45 @@ final class ScannerCanvas {
         color);
   }
 
+  private static final Map<Integer, float[]> CIRCLES = new HashMap<>();
+
   void arc(float x, float y, float r, float from, float to, float width, int color) {
-    int n = Math.max(2, (int) ((to - from) * r / 4));
-    for (int k = 0; k < n; k++) {
-      double a = from + (to - from) * k / n, b = from + (to - from) * (k + 1) / n;
-      line(
-          x + (float) Math.cos(a) * r,
-          y + (float) Math.sin(a) * r,
-          x + (float) Math.cos(b) * r,
-          y + (float) Math.sin(b) * r,
-          width,
-          color);
+    if (opacity <= 0 || (color(color) >>> 24) == 0) return;
+    // A 128-edge circle at radius 465 deviates by less than 0.15 virtual pixels.
+    // Reusing its unit directions avoids thousands of sin/cos calls and tiny line quads.
+    int count = r >= 100 ? 128 : 64;
+    if (Math.abs(from) < .0001 && Math.abs(to - Math.PI * 2) < .0001) {
+      var circle =
+          CIRCLES.computeIfAbsent(
+              count,
+              n -> {
+                float[] points = new float[(n + 1) * 2];
+                for (int k = 0; k <= n; k++) {
+                  points[k * 2] = (float) Math.cos(k * Math.PI * 2 / n);
+                  points[k * 2 + 1] = (float) Math.sin(k * Math.PI * 2 / n);
+                }
+                return points;
+              });
+      for (int k = 0; k < count; k++)
+        line(
+            x + circle[k * 2] * r,
+            y + circle[k * 2 + 1] * r,
+            x + circle[k * 2 + 2] * r,
+            y + circle[k * 2 + 3] * r,
+            width,
+            color);
+    } else {
+      int n = Math.max(2, (int) Math.ceil((to - from) / (Math.PI * 2) * count));
+      for (int k = 0; k < n; k++) {
+        double a = from + (to - from) * k / n, b = from + (to - from) * (k + 1) / n;
+        line(
+            x + (float) Math.cos(a) * r,
+            y + (float) Math.sin(a) * r,
+            x + (float) Math.cos(b) * r,
+            y + (float) Math.sin(b) * r,
+            width,
+            color);
+      }
     }
   }
 
@@ -166,20 +196,26 @@ final class ScannerCanvas {
       ScannerFont.draw(g, text, x, y, size, rgba, bold, spacing, false);
       return;
     }
-    // Preserve full Unicode names with the game's fallback font rather than substituting boxes.
-    var mc = Minecraft.getInstance();
-    g.pose().pushPose();
-    g.pose().translate(x, y, 1);
-    float scale = size / 12;
-    g.pose().scale(scale, scale, 1);
-    g.drawString(
-        mc.font,
-        Component.literal(text).withStyle(Style.EMPTY.withFont(HeavenlyRestriction.id("scanner"))),
-        0,
-        0,
-        rgba,
-        false);
-    g.pose().popPose();
+    // Native fallback is deferred too, so later plaque geometry cannot cover Unicode names.
+    var pose = new org.joml.Matrix4f(g.pose().last().pose());
+    ScannerBatch.fallback(
+        () -> {
+          var mc = Minecraft.getInstance();
+          g.pose().pushPose();
+          g.pose().last().pose().set(pose);
+          g.pose().translate(x, y, 1);
+          float scale = size / 12;
+          g.pose().scale(scale, scale, 1);
+          g.drawString(
+              mc.font,
+              Component.literal(text)
+                  .withStyle(Style.EMPTY.withFont(HeavenlyRestriction.id("scanner"))),
+              0,
+              0,
+              rgba,
+              false);
+          g.pose().popPose();
+        });
   }
 
   float width(String t, float size, boolean bold) {
@@ -232,34 +268,19 @@ final class ScannerCanvas {
 
   void icon(int id, float x, float y, float size, int color) {
     if (id < 0 || id >= 5) return;
-    String name = java.util.List.of("bolt", "brain", "eye", "legs", "skull").get(id);
-    g.pose().pushPose();
-    g.pose().translate(x, y, 0);
-    g.pose().scale(size / 48, size / 48, 1);
     int tint = color(color);
-    g.flush();
-    g.setColor(
-        ((tint >> 16) & 255) / 255f,
-        ((tint >> 8) & 255) / 255f,
-        (tint & 255) / 255f,
-        (tint >>> 24) / 255f);
-    boolean blended = org.lwjgl.opengl.GL11.glIsEnabled(org.lwjgl.opengl.GL11.GL_BLEND);
-    com.mojang.blaze3d.systems.RenderSystem.enableBlend();
-    com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
-    g.blit(
+    if ((tint >>> 24) < 4) return;
+    String name = List.of("bolt", "brain", "eye", "legs", "skull").get(id);
+    var pose = new org.joml.Matrix4f(g.pose().last().pose());
+    ScannerBatch.submit(
+        g,
         HeavenlyRestriction.id("textures/gui/netrunner/" + name + ".png"),
-        0,
-        0,
-        48,
-        48,
-        0,
-        0,
-        128,
-        128,
-        128,
-        128);
-    g.setColor(1, 1, 1, 1);
-    if (!blended) com.mojang.blaze3d.systems.RenderSystem.disableBlend();
-    g.pose().popPose();
+        1,
+        out -> {
+          out.addVertex(pose, x, y, 0).setUv(0, 0).setColor(tint);
+          out.addVertex(pose, x, y + size, 0).setUv(0, 1).setColor(tint);
+          out.addVertex(pose, x + size, y + size, 0).setUv(1, 1).setColor(tint);
+          out.addVertex(pose, x + size, y, 0).setUv(1, 0).setColor(tint);
+        });
   }
 }

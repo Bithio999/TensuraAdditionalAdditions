@@ -9,7 +9,7 @@
 | Tier | Unique |
 | Obtaining | Reincarnation Unique pool; [Archivist](Additions-Archive-of-Accord.md) mentorship |
 | Ability | Quickhack · Active, Hold |
-| Mastery | Uploads finish 20% faster |
+| Mastery | Upload times are halved (50% shorter) |
 
 <a id="quickhack"></a>
 
@@ -40,7 +40,7 @@ The scanner shows the target’s HP, SHP, magicules, aura, status effects and cu
 
 Deal **120 Lightning HP damage**, increased to **180** against a target currently casting.
 
-**Damage type:** Lightning (`tensura:lightning`). **Cost:** 200 magicules. **Upload:** 2 seconds. **Cooldown:** 8 seconds.
+**Damage type:** Lightning (`tensura:lightning`). **Cost:** 200 magicules. **Upload:** 2 seconds. **Cooldown:** 2 seconds.
 
 <a id="synapse-burnout"></a>
 
@@ -48,7 +48,7 @@ Deal **120 Lightning HP damage**, increased to **180** against a target currentl
 
 Deal **70 + 140 × missing-magicule fraction** SHP damage. Spiritual Attack Resistance halves it; Spiritual Attack Nullification blocks it.
 
-**Damage type:** Mind Crush, spiritual damage (`tensura:mind_crush`). **Cost:** 320 magicules. **Upload:** 2.5 seconds. **Cooldown:** 12 seconds.
+**Damage type:** Mind Crush, spiritual damage (`tensura:mind_crush`). **Cost:** 320 magicules. **Upload:** 2.5 seconds. **Cooldown:** 3 seconds.
 
 <a id="reboot-optics"></a>
 
@@ -56,7 +56,7 @@ Deal **70 + 140 × missing-magicule fraction** SHP damage. Spiritual Attack Resi
 
 Disrupt the target’s vision for **5 seconds**. Affected mobs lose their target and stop navigating; players suffer a dark, glitching view.
 
-**Damage type:** None. **Cost:** 160 magicules. **Upload:** 1.5 seconds. **Cooldown:** 10 seconds.
+**Damage type:** None. **Cost:** 160 magicules. **Upload:** 1.5 seconds. **Cooldown:** 4 seconds.
 
 <a id="cripple-movement"></a>
 
@@ -64,7 +64,7 @@ Disrupt the target’s vision for **5 seconds**. Affected mobs lose their target
 
 Root the target for **3 seconds**, stopping horizontal movement and upward motion. Attack speed is unchanged.
 
-**Damage type:** None. **Cost:** 240 magicules. **Upload:** 2 seconds. **Cooldown:** 12 seconds.
+**Damage type:** None. **Cost:** 240 magicules. **Upload:** 2 seconds. **Cooldown:** 4 seconds.
 
 <a id="suicide"></a>
 
@@ -72,7 +72,7 @@ Root the target for **3 seconds**, stopping horizontal movement and upward motio
 
 Force a self-directed strike that deals resistible mental HP damage: **200% maximum HP** against ordinary mobs, **45%** against players and tagged bosses. It uses the normal damage pipeline; defenses and fatal-hit regeneration can prevent death.
 
-**Damage type:** Mind Crush (`tensura:mind_crush`). **Cost:** 900 magicules. **Upload:** 5 seconds. **Cooldown:** 60 seconds.
+**Damage type:** Mind Crush (`tensura:mind_crush`). **Cost:** 900 magicules. **Upload:** 5 seconds. **Cooldown:** 15 seconds.
 
 All numbers are defaults. Server settings and native combat modifiers can change the outcome. Netrunner is excluded from Fettered Human’s default reincarnation pool and from Metis auto-casting.
 

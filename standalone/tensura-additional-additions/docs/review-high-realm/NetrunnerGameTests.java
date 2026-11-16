@@ -79,6 +79,8 @@ public class NetrunnerGameTests {
     var p = player(h);
     var i = scanner(p);
     var t = target(h, p.position().add(8, 0, 0));
+    t.setPersistenceRequired();
+    t.setInvulnerable(true);
     afterTracking(
         h,
         List.of(t),
@@ -93,7 +95,7 @@ public class NetrunnerGameTests {
           h.assertTrue(
               Math.abs(before - TensuraStorages.getExistenceFrom(p).getMagicule() - 200) < .01,
               "Incorrect payment");
-          h.assertTrue(i.getCoolDown(1) == 8, "Cooldown not eight seconds");
+          h.assertTrue(i.getCoolDown(1) == 2, "Cooldown not two seconds");
           double masteryBefore = i.getMastery();
           Netrunner.close(p);
           t.setPos(p.position().add(12, 0, 2));
@@ -115,6 +117,40 @@ public class NetrunnerGameTests {
                         Netrunner.state(p).getList("queue", 10).isEmpty(), "Upload still pending");
                   })
               .thenSucceed();
+        });
+  }
+
+  @GameTest(template = "empty", timeoutTicks = 120)
+  public static void shortenedCooldownExpiresWhileScannerClosed(GameTestHelper h) {
+    var p = player(h);
+    var i = scanner(p);
+    var t = target(h, p.position().add(8, 0, 0));
+    afterTracking(
+        h,
+        List.of(t),
+        () -> {
+          Netrunner.open(p, i, 0);
+          request(p, 1, t.getId(), 0);
+          h.assertTrue(i.getCoolDown(1) == 2, "Short Circuit did not start its reduced cooldown");
+          Netrunner.close(p);
+          // Unspawned fixtures do not receive world entity ticks; post the native event without
+          // introducing a real player that changes despawning in the other isolated arenas.
+          for (int tick = 1; tick <= 45; tick++)
+            h.runAfterDelay(
+                tick,
+                () ->
+                    net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(
+                        new net.neoforged.neoforge.event.tick.EntityTickEvent.Post(p)));
+          h.runAfterDelay(
+              45,
+              () -> {
+                h.assertTrue(
+                    i.getCoolDown(1) == 0,
+                    "Reduced cooldown did not expire after two seconds while closed");
+                h.assertTrue(i.getCoolDown(0) == 0, "Hack cooldown blocked the scanner");
+                Netrunner.clear(p);
+                h.succeed();
+              });
         });
   }
 
@@ -199,10 +235,15 @@ public class NetrunnerGameTests {
   @GameTest(template = "empty", timeoutTicks = 100)
   public static void masteredUploadsFasterAndForgetClearsQueue(GameTestHelper h) {
     h.assertTrue(
-        Quickhack.SUICIDE.upload(true) == 80 && Quickhack.SUICIDE.upload(false) == 100,
+        Quickhack.SUICIDE.upload(true) == 50 && Quickhack.SUICIDE.upload(false) == 100,
         "Mastery upload ratio");
+    for (var hack : Quickhack.values())
+      h.assertTrue(
+          hack.upload(true) * 2 == hack.upload(false), "Mastery must halve every hack upload");
     var p = player(h);
     var i = scanner(p);
+    i.setMastery(i.getMaxMastery());
+    h.assertTrue(i.isMastered(p), "Native mastery gate is not reached");
     var t = target(h, p.position().add(8, 0, 0));
     afterTracking(
         h,
@@ -213,6 +254,9 @@ public class NetrunnerGameTests {
               SkillAPI.getSkillsFrom(p).getSkill(HeavenlyRestriction.NETRUNNER.get()).orElseThrow(),
               0);
           request(p, 1, t.getId(), 0);
+          h.assertTrue(
+              Netrunner.state(p).getList("queue", 10).getCompound(0).getInt("total") == 20,
+              "Mastered Short Circuit did not queue a one-second upload");
           SkillAPI.getSkillsFrom(p).forgetSkill(i);
           h.assertTrue(Netrunner.state(p).isEmpty(), "Forgotten skill retains session");
           h.succeed();

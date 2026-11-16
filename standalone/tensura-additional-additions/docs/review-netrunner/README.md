@@ -7,3 +7,5 @@ Captures and pass/fail markers go to `/workspace/validation-netrunner/capture`; 
 The uploaded Cyberpunk reference informed entry/exit timing, cyan/red plaques, reticle, target-data placement and overhead upload icons. No reference footage or Cyberpunk assets are redistributed.
 
 The entry handler samples the timestamp used for native GUI rendering, rather than the end of a potentially slow frame. `entry-timing.txt` records six acquisition stages. Entry images are extracted from the X11 recording; framebuffer readback and PNG compression are kept out of the opening animation.
+
+`frame-times.csv` records tick, scanner-active flag, whole-frame interval, GUI-pass duration, batched material count and sprite/text job count. Compare runs without a recorder; exclude the screenshot ticks when measuring. Opening samples use ticks 100–118, steady scanning uses 124–143, and reopening uses 235–253. The capture machine uses software OpenGL; frame rates are not a hardware performance guarantee.

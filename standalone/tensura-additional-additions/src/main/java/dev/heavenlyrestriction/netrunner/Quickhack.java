@@ -2,11 +2,11 @@ package dev.heavenlyrestriction.netrunner;
 
 /** Stable wire IDs and independent cooldown channels; none are extra selectable skill modes. */
 public enum Quickhack {
-  SHORT_CIRCUIT("Short Circuit", 200, 40, 8),
-  SYNAPSE_BURNOUT("Synapse Burnout", 320, 50, 12),
-  REBOOT_OPTICS("Reboot Optics", 160, 30, 10),
-  CRIPPLE_MOVEMENT("Cripple Movement", 240, 40, 12),
-  SUICIDE("Suicide", 900, 100, 60);
+  SHORT_CIRCUIT("Short Circuit", 200, 40, 2),
+  SYNAPSE_BURNOUT("Synapse Burnout", 320, 50, 3),
+  REBOOT_OPTICS("Reboot Optics", 160, 30, 4),
+  CRIPPLE_MOVEMENT("Cripple Movement", 240, 40, 4),
+  SUICIDE("Suicide", 900, 100, 15);
 
   public final String title;
   public final double baseCost;
@@ -32,6 +32,6 @@ public enum Quickhack {
   }
 
   public int upload(boolean mastered) {
-    return Math.max(1, Math.round(uploadTicks * (mastered ? .8f : 1)));
+    return Math.max(1, Math.round(uploadTicks * (mastered ? .5f : 1)));
   }
 }

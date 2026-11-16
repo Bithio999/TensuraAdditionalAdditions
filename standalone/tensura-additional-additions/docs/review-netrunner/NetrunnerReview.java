@@ -28,6 +28,46 @@ public final class NetrunnerReview {
   static volatile LivingEntity target;
   static boolean finished;
   static int entry;
+  static long frameAt, guiAt;
+  static java.lang.reflect.Field materialCount, jobCount;
+  static final List<String> FRAME_TIMES = new ArrayList<>();
+
+  @SubscribeEvent
+  public static void beforeGui(RenderGuiEvent.Pre event) {
+    guiAt = System.nanoTime();
+  }
+
+  @SubscribeEvent(priority = net.neoforged.bus.api.EventPriority.LOWEST)
+  public static void frameTiming(RenderGuiEvent.Post event) {
+    long now = System.nanoTime();
+    int materials = 0, jobs = 0;
+    try {
+      if (materialCount == null) {
+        var type = Class.forName("dev.heavenlyrestriction.client.netrunner.ScannerBatch");
+        materialCount = type.getDeclaredField("lastMaterials");
+        materialCount.setAccessible(true);
+        jobCount = type.getDeclaredField("lastJobs");
+        jobCount.setAccessible(true);
+      }
+      materials = materialCount.getInt(null);
+      jobs = jobCount.getInt(null);
+    } catch (ReflectiveOperationException ex) {
+      throw new IllegalStateException(ex);
+    }
+    if (ticks >= 80 && ticks <= 254 && guiAt > 0 && frameAt > 0)
+      FRAME_TIMES.add(
+          String.format(
+              Locale.ROOT,
+              "%d,%s,%.3f,%.3f,%d,%d",
+              ticks,
+              NetrunnerClient.active(),
+              (now - frameAt) / 1e6,
+              (now - guiAt) / 1e6,
+              materials,
+              jobs));
+    frameAt = now;
+  }
+
   static final int[] ENTRY_TIMES = {40, 160, 300, 480, 640, 820};
 
   @SubscribeEvent(priority = net.neoforged.bus.api.EventPriority.LOWEST)
@@ -318,6 +358,7 @@ public final class NetrunnerReview {
       if (ticks == 335) shot("scanner-ultrawide");
       if (ticks == 345) org.lwjgl.glfw.GLFW.glfwSetWindowSize(m.getWindow().getWindow(), 1280, 720);
       if (ticks == 355) {
+        Files.write(OUT.resolve("frame-times.csv"), FRAME_TIMES);
         if (entry != ENTRY_TIMES.length)
           throw new IllegalStateException("Missed native acquisition frames: " + entry);
         TensuraKeybinds.ACTIVATE_SLOT_1.setDown(false);

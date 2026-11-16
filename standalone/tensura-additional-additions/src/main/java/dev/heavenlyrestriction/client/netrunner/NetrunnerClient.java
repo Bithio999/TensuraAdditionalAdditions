@@ -69,7 +69,9 @@ public final class NetrunnerClient {
   }
 
   public static boolean outlined(Entity e) {
-    return active() && MOTION.sample(System.nanoTime()).chrome() > .15 && e.getId() == focus;
+    // The native full-screen outline pass starts once acquisition is complete. Keep the animated
+    // lens/grid responsive while the link is forming; the body highlight accompanies the data.
+    return active() && MOTION.sample(System.nanoTime()).data() >= .98 && e.getId() == focus;
   }
 
   public static void receive(CompoundTag t) {
@@ -132,12 +134,11 @@ public final class NetrunnerClient {
             LivingEntity.class,
             m.player.getBoundingBox().inflate(range),
             t -> t != m.player && t.isAlive() && !t.isSpectator())) {
-      if (!m.player.hasLineOfSight(t)) continue;
       var box = t.getBoundingBox().inflate(.24);
       var clip = box.clip(eye, eye.add(look.scale(range)));
       if (clip.isPresent()) {
         double d = eye.distanceToSqr(clip.get());
-        if (d < nearest) {
+        if (d < nearest && m.player.hasLineOfSight(t)) {
           nearest = d;
           hit = t;
         }
@@ -199,56 +200,67 @@ public final class NetrunnerClient {
   public static void render(RenderGuiEvent.Post e) {
     var m = Minecraft.getInstance();
     if (m.player == null || m.level == null || m.options.hideGui || m.screen != null) return;
-    long now = System.nanoTime();
-    var graphics = e.getGuiGraphics();
-    if (!prepared) {
-      // Prime actual draw paths offscreen, before a first key press. Merely loading PNGs does not
-      // create their GL materials; lazy glyph/icon uploads otherwise interrupt the acquisition.
-      prepared = true;
-      graphics.pose().pushPose();
-      graphics.pose().translate(-8192, -8192, 0);
-      scanner(new ScannerCanvas(graphics, 1), now, new ScannerMotion.Frame(1000, 1, true));
-      graphics.flush();
-      graphics.pose().popPose();
-    }
-    MOTION.renderFrame(now);
-    var motion = MOTION.sample(now);
-    double transition = motion.lens();
-    var g = e.getGuiGraphics();
-    float w = m.getWindow().getGuiScaledWidth(), h = m.getWindow().getGuiScaledHeight();
-    if (transition > 0) {
-      var full = new ScannerCanvas(g, (float) transition);
-      full.rect(0, 0, w, h, 0x24134732);
-      full.gradient(0, 0, w * .28f, h, 0xa636100e, 0x0036100e, 0x0036100e, 0xa636100e);
-      full.gradient(w * .72f, 0, w * .28f, h, 0x0036100e, 0xa636100e, 0xa636100e, 0x0036100e);
-      full.gradient(0, 0, w, h * .22f, 0x93200e0c, 0x93200e0c, 0x00200e0c, 0x00200e0c);
-      full.gradient(0, h * .78f, w, h * .22f, 0x00200e0c, 0x00200e0c, 0x93200e0c, 0x93200e0c);
-      // Fine lens scan lines sit behind the legible plaques, not across their text.
-      for (float y = 0; y < h; y += 2.5f) full.rect(0, y, w, .35f, 0x072e0808);
-      float scale = Math.min(w / 1920, h / 1080);
-      g.pose().pushPose();
-      g.pose().translate((w - 1920 * scale) / 2, (h - 1080 * scale) / 2, 0);
-      g.pose().scale(scale, scale, 1);
-      var c = new ScannerCanvas(g, 1);
-      scanner(c, now, motion);
-      g.pose().popPose();
-    }
-    overhead(g, w, h, now);
-    // Reboot Optics is an actual status effect for a player victim, not just an AI-only control.
-    if (m.player.hasEffect(NetrunnerEffects.OPTICS)) {
-      var c = new ScannerCanvas(g, 1);
-      c.rect(0, 0, w, h, 0xd4071117);
-      for (int k = 0; k < 14; k++) {
-        float y = (float) ((k * 67 + now / 9e6) % h);
-        c.rect(0, y, w, 1, 0x5556e5e0);
+    ScannerBatch.begin();
+    try {
+      long now = System.nanoTime();
+      var graphics = e.getGuiGraphics();
+      if (!prepared) {
+        // Prime actual draw paths offscreen, before a first key press. Merely loading PNGs does not
+        // create their GL materials; lazy glyph/icon uploads otherwise interrupt the acquisition.
+        prepared = true;
+        // Prime vanilla's outline post-process on an empty world buffer before a target is linked.
+        // The first shader use must not interrupt the acquisition animation.
+        m.levelRenderer.requestOutlineEffect();
+        graphics.pose().pushPose();
+        graphics.pose().translate(-8192, -8192, 0);
+        scanner(new ScannerCanvas(graphics, 1), now, new ScannerMotion.Frame(1000, 1, true));
+        graphics.flush();
+        graphics.pose().popPose();
       }
+      MOTION.renderFrame(now);
+      var motion = MOTION.sample(now);
+      double transition = motion.lens();
+      var g = e.getGuiGraphics();
+      float w = m.getWindow().getGuiScaledWidth(), h = m.getWindow().getGuiScaledHeight();
+      if (transition > 0) {
+        var full = new ScannerCanvas(g, (float) transition);
+        full.rect(0, 0, w, h, 0x24134732);
+        full.gradient(0, 0, w * .28f, h, 0xa636100e, 0x0036100e, 0x0036100e, 0xa636100e);
+        full.gradient(w * .72f, 0, w * .28f, h, 0x0036100e, 0xa636100e, 0xa636100e, 0x0036100e);
+        full.gradient(0, 0, w, h * .22f, 0x93200e0c, 0x93200e0c, 0x00200e0c, 0x00200e0c);
+        full.gradient(0, h * .78f, w, h * .22f, 0x00200e0c, 0x00200e0c, 0x93200e0c, 0x93200e0c);
+        // Fine lens scan lines sit behind the legible plaques, not across their text.
+        for (float y = 0; y < h; y += 2.5f) full.rect(0, y, w, .35f, 0x072e0808);
+        float scale = Math.min(w / 1920, h / 1080);
+        g.pose().pushPose();
+        g.pose().translate((w - 1920 * scale) / 2, (h - 1080 * scale) / 2, 0);
+        g.pose().scale(scale, scale, 1);
+        var c = new ScannerCanvas(g, 1);
+        scanner(c, now, motion);
+        g.pose().popPose();
+      }
+      overhead(g, w, h, now);
+      // Reboot Optics is an actual status effect for a player victim, not just an AI-only control.
+      if (m.player.hasEffect(NetrunnerEffects.OPTICS)) {
+        var c = new ScannerCanvas(g, 1);
+        c.rect(0, 0, w, h, 0xd4071117);
+        for (int k = 0; k < 14; k++) {
+          float y = (float) ((k * 67 + now / 9e6) % h);
+          c.rect(0, y, w, 1, 0x5556e5e0);
+        }
+      }
+
+    } finally {
+      ScannerBatch.flush(e.getGuiGraphics());
     }
   }
 
   private static void scanner(ScannerCanvas root, long now, ScannerMotion.Frame motion) {
     var lens = root.fade(motion.lens());
     var chrome = root.fade(motion.chrome());
-    float r = (float) (100 + 365 * ease(motion.age() / 280));
+    float r =
+        (float)
+            (100 + 365 * net.minecraft.util.Mth.smoothstep(Math.clamp(motion.age() / 450, 0, 1)));
     lens.glowArc(960, 540, r, 0, (float) (Math.PI * 2), .8f, 0x85a8272e);
     lens.glowArc(960, 540, 57, 0, (float) (Math.PI * 2), .85f, 0xbfff3742);
     lens.arc(960, 540, 45, 0, (float) (Math.PI * 2), .85f, 0x80ff3742);
@@ -334,6 +346,7 @@ public final class NetrunnerClient {
   }
 
   private static void resource(ScannerCanvas c, ScannerMotion.Frame motion) {
+    if (c.opacity <= 0) return;
     double mp = state.getDouble("mp"), max = state.getDouble("maxMp");
     c.dots(693, 97, 3, 5, 0x99ff323e);
     c.glowText("MAGICULES: " + number(mp) + "/" + number(max), 719, 108, 23, 0xfff53d42);
@@ -460,6 +473,7 @@ public final class NetrunnerClient {
   }
 
   private static void data(ScannerCanvas c, ScannerMotion.Frame motion) {
+    if (c.opacity <= 0) return;
     var target = state.getCompound("target");
     boolean has = target.contains("id") && target.getInt("id") == focus;
     float shift = (float) ((1 - ease((motion.age() - 500) / 230)) * 12);

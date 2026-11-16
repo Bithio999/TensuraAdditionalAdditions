@@ -1,5 +1,12 @@
 # Changelog
 
+## Additions 1.31.2 — Faster quickhacking and scanner rendering
+
+- Reduce Short Circuit cooldown from 8 to 2 seconds, Synapse Burnout from 12 to 3, Reboot Optics from 10 to 4, Cripple Movement from 12 to 4, and Suicide from 60 to 15.
+- Mastery now halves upload times, replacing the previous 20% reduction. Update skill text, F8 guide and wiki.
+- Batch scanner icons/glow/text by shared material, remove per-icon flushes, skip invisible acquisition geometry and use cached, lower-cost circles. Preserve the restored HUD details.
+- Verify paid queue behavior, mastery on all five uploads and reduced cooldown expiration after closing the scanner; measure native HUD frame timings.
+
 ## Additions 1.31.1 — Scanner fidelity
 
 - Restore the approved scanner’s notched resource cells, stepped quickhack chips, icon frames, status badges, selection sheen, red glow and tracked edge lettering. Use both Rajdhani weights with smooth, high-resolution glyphs.
