@@ -1,5 +1,12 @@
 # Changelog
 
+## Additions 1.31.1 — Scanner fidelity
+
+- Restore the approved scanner’s notched resource cells, stepped quickhack chips, icon frames, status badges, selection sheen, red glow and tracked edge lettering. Use both Rajdhani weights with smooth, high-resolution glyphs.
+- Stage activation as lens/target acquisition, resource cascade, then staggered quickhack and target-data panels. Prevent low-opacity text flashes, gate queue controls until ready, and close from the current animation state even after a short tap.
+- Restore the preview’s horizontal mouse/key prompts and warm edge tint. Keep native HUD plaques and the hotbar clear of scanner lettering while held; restore them on release. Keep queued uploads visible above their targets after closing.
+- Add animation/path regressions and frame-by-frame native capture, update screenshots and the actual-client video.
+
 ## Additions 1.31.0 — Netrunner
 
 - Add the Netrunner Unique Skill with one held scanner: Short Circuit, Synapse Burnout, Reboot Optics, Cripple Movement and Suicide.

@@ -42,7 +42,15 @@ final class ScannerCanvas {
     for (var t : triangulate(p)) quad(t.a(), t.b(), t.c(), t.c(), c);
   }
 
+  private float strokeWidth(float requested) {
+    var window = Minecraft.getInstance().getWindow();
+    float physicalScale =
+        Math.abs(g.pose().last().pose().m00()) * window.getWidth() / window.getGuiScaledWidth();
+    return Math.max(requested, 1 / Math.max(.0001f, physicalScale));
+  }
+
   void stroke(List<Point> p, float width, int color) {
+    width = strokeWidth(width);
     var outer = offset(p, -width / 2);
     var inner = offset(p, width / 2);
     for (int k = 0; k < p.size(); k++) {
@@ -71,6 +79,7 @@ final class ScannerCanvas {
   }
 
   void line(float x, float y, float a, float b, float width, int color) {
+    width = strokeWidth(width);
     float dx = a - x, dy = b - y, len = (float) Math.hypot(dx, dy);
     if (len == 0) return;
     float nx = -dy / len * width / 2, ny = dx / len * width / 2;
@@ -96,34 +105,129 @@ final class ScannerCanvas {
     }
   }
 
-  void text(String text, float x, float y, float size, int color) {
+  ScannerCanvas fade(double factor) {
+    return new ScannerCanvas(g, opacity * (float) Math.clamp(factor, 0, 1));
+  }
+
+  void shape(List<Point> path, int fill, int border) {
+    polygon(path, fill);
+    stroke(path, .85f, border);
+  }
+
+  void halo(List<Point> path, int tint) {
+    stroke(path, 9, (tint & 0xffffff) | 0x08000000);
+    stroke(path, 5, (tint & 0xffffff) | 0x15000000);
+    stroke(path, 2.5f, (tint & 0xffffff) | 0x28000000);
+  }
+
+  void glowLine(float x, float y, float a, float b, float width, int tint) {
+    line(x, y, a, b, width + 7, (tint & 0xffffff) | 0x08000000);
+    line(x, y, a, b, width + 3, (tint & 0xffffff) | 0x15000000);
+    line(x, y, a, b, width, tint);
+  }
+
+  void glowArc(float x, float y, float r, float from, float to, float width, int tint) {
+    arc(x, y, r, from, to, width + 6, (tint & 0xffffff) | 0x08000000);
+    arc(x, y, r, from, to, width + 2, (tint & 0xffffff) | 0x18000000);
+    arc(x, y, r, from, to, width, tint);
+  }
+
+  void text(String text, float x, float y, float size, int tint) {
+    type(text, x, y, size, tint, true, 0, false);
+  }
+
+  void glowText(String text, float x, float y, float size, int tint) {
+    type(text, x, y, size, tint, true, 0, true);
+  }
+
+  void body(String text, float x, float y, float size, int tint) {
+    type(text, x, y, size, tint, false, 0, false);
+  }
+
+  void tracked(String text, float x, float y, float size, int tint, float spacing) {
+    type(text, x, y, size, tint, false, spacing, false);
+  }
+
+  private void type(
+      String text,
+      float x,
+      float y,
+      float size,
+      int tint,
+      boolean bold,
+      float spacing,
+      boolean glow) {
+    int rgba = color(tint);
+    if ((rgba >>> 24) < 4 || text.isEmpty()) return;
+    if (ScannerFont.supports(text, bold)) {
+      if (glow)
+        ScannerFont.draw(
+            g, text, x, y, size, ((rgba >>> 24) / 2) << 24 | rgba & 0xffffff, bold, spacing, true);
+      ScannerFont.draw(g, text, x, y, size, rgba, bold, spacing, false);
+      return;
+    }
+    // Preserve full Unicode names with the game's fallback font rather than substituting boxes.
     var mc = Minecraft.getInstance();
     g.pose().pushPose();
     g.pose().translate(x, y, 1);
-    float s = size / 9;
-    g.pose().scale(s, s, 1);
+    float scale = size / 12;
+    g.pose().scale(scale, scale, 1);
     g.drawString(
         mc.font,
         Component.literal(text).withStyle(Style.EMPTY.withFont(HeavenlyRestriction.id("scanner"))),
         0,
         0,
-        color(color),
+        rgba,
         false);
     g.pose().popPose();
   }
 
-  void center(String t, float x, float y, float size, int c) {
+  float width(String t, float size, boolean bold) {
+    if (ScannerFont.supports(t, bold)) return ScannerFont.width(t, size, bold, 0);
     var mc = Minecraft.getInstance();
-    var component =
-        Component.literal(t).withStyle(Style.EMPTY.withFont(HeavenlyRestriction.id("scanner")));
-    text(t, x - mc.font.width(component) * size / 18, y, size, c);
+    return mc.font.width(
+            Component.literal(t).withStyle(Style.EMPTY.withFont(HeavenlyRestriction.id("scanner"))))
+        * size
+        / 12;
   }
 
-  void right(String t, float right, float y, float size, int c) {
-    var mc = Minecraft.getInstance();
-    var component =
-        Component.literal(t).withStyle(Style.EMPTY.withFont(HeavenlyRestriction.id("scanner")));
-    text(t, right - mc.font.width(component) * size / 9, y, size, c);
+  String fit(String text, float maxWidth, float size, boolean bold) {
+    if (width(text, size, bold) <= maxWidth) return text;
+    String value = text;
+    while (!value.isEmpty() && width(value + "…", size, bold) > maxWidth)
+      value = value.substring(0, value.offsetByCodePoints(value.length(), -1));
+    return value + "…";
+  }
+
+  void center(String t, float x, float y, float size, int tint) {
+    text(t, x - width(t, size, true) / 2, y, size, tint);
+  }
+
+  void right(String t, float x, float y, float size, int tint) {
+    body(t, x - width(t, size, false), y, size, tint);
+  }
+
+  void dots(float x, float y, int cols, int rows, int tint) {
+    for (int j = 0; j < rows; j++)
+      for (int i = 0; i < cols; i++) rect(x + i * 5, y + j * 5, 1.4f, 1.4f, tint);
+  }
+
+  void mouse(float x, float y, int button) {
+    var path =
+        List.of(
+            new Point(x + 5, y),
+            new Point(x + 15, y),
+            new Point(x + 20, y + 6),
+            new Point(x + 20, y + 25),
+            new Point(x + 15, y + 31),
+            new Point(x + 5, y + 31),
+            new Point(x, y + 25),
+            new Point(x, y + 6));
+    polygon(path, 0x1821bcd0);
+    stroke(path, 1, 0xff66def1);
+    line(x + 10, y, x + 10, y + 12, 1, 0xff66def1);
+    line(x, y + 10, x + 20, y + 10, 1, 0xff66def1);
+    rect(x + (button == 1 ? 10 : 1), y + 1, 9, 9, 0x2865c9d4);
   }
 
   void icon(int id, float x, float y, float size, int color) {

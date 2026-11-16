@@ -30,6 +30,35 @@ public final class HudGeometry {
         new Point(x, y + cut));
   }
 
+  public static List<Point> chip(float x, float y, float w, float h) {
+    return List.of(
+        new Point(x, y),
+        new Point(x + w - 9, y),
+        new Point(x + w, y + 9),
+        new Point(x + w, y + h),
+        new Point(x + 6, y + h),
+        new Point(x + 6, y + h * .54f),
+        new Point(x, y + h * .45f));
+  }
+
+  public static List<Point> pip(float x, float y, float w, float h) {
+    return List.of(
+        new Point(x, y),
+        new Point(x + w, y),
+        new Point(x + w, y + h * .85f),
+        new Point(x + w * .75f, y + h),
+        new Point(x, y + h));
+  }
+
+  public static List<Point> data(float x, float y, float w, float h) {
+    return List.of(
+        new Point(x, y),
+        new Point(x + w, y),
+        new Point(x + w, y + h - 14),
+        new Point(x + w - 14, y + h),
+        new Point(x, y + h));
+  }
+
   public static List<Triangle> triangulate(List<Point> path) {
     double signed = 0;
     for (int k = 0; k < path.size(); k++) {

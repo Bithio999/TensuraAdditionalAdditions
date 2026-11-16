@@ -27,6 +27,44 @@ public final class NetrunnerReview {
   static volatile String error;
   static volatile LivingEntity target;
   static boolean finished;
+  static int entry;
+  static final int[] ENTRY_TIMES = {40, 160, 300, 480, 640, 820};
+
+  @SubscribeEvent(priority = net.neoforged.bus.api.EventPriority.LOWEST)
+  public static void entryFrame(RenderGuiEvent.Post e) {
+    if (ticks < 100 || ticks > 125 || entry >= ENTRY_TIMES.length || !NetrunnerClient.active())
+      return;
+    try {
+      var field = NetrunnerClient.class.getDeclaredField("MOTION");
+      field.setAccessible(true);
+      var controller = (dev.heavenlyrestriction.client.netrunner.ScannerMotion) field.get(null);
+      var lastFrame = controller.getClass().getDeclaredField("lastFrame");
+      lastFrame.setAccessible(true);
+      var motion = controller.sample(lastFrame.getLong(controller));
+      if (motion.age() < ENTRY_TIMES[entry]) return;
+      if (entry < 3 && (motion.hacks() != 0 || motion.data() != 0))
+        throw new IllegalStateException(
+            "Panels appeared during lens/link acquisition at " + motion.age());
+      Files.writeString(
+          OUT.resolve("entry-timing.txt"),
+          ENTRY_TIMES[entry]
+              + ": "
+              + motion.age()
+              + "ms lens="
+              + motion.lens()
+              + " hacks="
+              + motion.hacks()
+              + " data="
+              + motion.data()
+              + "\n",
+          StandardOpenOption.CREATE,
+          StandardOpenOption.APPEND);
+      entry++;
+    } catch (Throwable ex) {
+      error = ex.toString();
+      ex.printStackTrace();
+    }
+  }
 
   static void server(java.util.function.Consumer<ServerPlayer> action) {
     var s = Minecraft.getInstance().getSingleplayerServer();
@@ -82,6 +120,7 @@ public final class NetrunnerReview {
           Files.createDirectories(OUT);
           Files.deleteIfExists(OUT.resolve("passed.txt"));
           Files.deleteIfExists(OUT.resolve("failed.txt"));
+          Files.deleteIfExists(OUT.resolve("entry-timing.txt"));
           m.options.pauseOnLostFocus = false;
           m.gui.getChat().clearMessages(true);
           m.options.guiScale().set(2);
@@ -279,6 +318,8 @@ public final class NetrunnerReview {
       if (ticks == 335) shot("scanner-ultrawide");
       if (ticks == 345) org.lwjgl.glfw.GLFW.glfwSetWindowSize(m.getWindow().getWindow(), 1280, 720);
       if (ticks == 355) {
+        if (entry != ENTRY_TIMES.length)
+          throw new IllegalStateException("Missed native acquisition frames: " + entry);
         TensuraKeybinds.ACTIVATE_SLOT_1.setDown(false);
         TensuraKeybinds.onAbilityReleased(0);
         m.options.guiScale().set(2);
@@ -286,7 +327,8 @@ public final class NetrunnerReview {
         Files.writeString(
             OUT.resolve("passed.txt"),
             "Native skill key, scanner, MouseHandler wheel/click, two queued uploads, release"
-                + " continuation, target damage, GUI scales 1/2/3.\n");
+                + " continuation, target damage, GUI scales 1/2/3, six staged activation"
+                + " frames.\n");
         finished = true;
         m.stop();
       }

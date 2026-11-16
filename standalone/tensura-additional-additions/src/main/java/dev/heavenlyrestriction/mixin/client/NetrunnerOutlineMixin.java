@@ -10,6 +10,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class NetrunnerOutlineMixin {
   @Inject(method = "getTeamColor", at = @At("HEAD"), cancellable = true)
   private void additions$color(CallbackInfoReturnable<Integer> ci) {
-    if (NetrunnerClient.outlined((Entity) (Object) this)) ci.setReturnValue(0xf65e64);
+    if (NetrunnerClient.outlined((Entity) (Object) this)) ci.setReturnValue(0xff333e);
   }
 }

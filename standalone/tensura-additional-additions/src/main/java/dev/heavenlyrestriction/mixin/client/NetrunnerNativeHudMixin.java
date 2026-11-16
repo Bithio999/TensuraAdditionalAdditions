@@ -6,13 +6,22 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/**
- * Native vitals remain visible; ability plaques/appraisal yield their space to the held scanner.
- */
+/** Native HUD yields its space to the held scanner; all layers return immediately on release. */
 @Mixin(OverlayHandler.class)
 public abstract class NetrunnerNativeHudMixin {
   @Inject(
-      method = {"renderAbilities", "renderAnalysis"},
+      method = {
+        "renderAbilities",
+        "renderAnalysis",
+        "renderStatus",
+        "renderStatusBars",
+        "renderFoodDecoration",
+        "renderArmorDecoration",
+        "renderAirDecoration",
+        "renderBarrierDecoration",
+        "renderMountHealthDecoration",
+        "renderMountSpiritualHealthDecoration"
+      },
       at = @At("HEAD"),
       cancellable = true,
       remap = false)

@@ -2,12 +2,12 @@
 
 An active addon for **Tensura: Reincarnated**, **Minecraft 1.21.1** and **NeoForge**.
 
-[Download 1.31.0](releases/TensuraAdditionalAdditions-1.31.0.jar) · [Gameplay wiki](wiki/pages/TensuraAdditionalAdditions.md) · [Development guide](standalone/tensura-additional-additions/README.md) · [Validation](standalone/tensura-additional-additions/docs/VALIDATION-1.31.0.md)
+[Download 1.31.1](releases/TensuraAdditionalAdditions-1.31.1.jar) · [Gameplay wiki](wiki/pages/TensuraAdditionalAdditions.md) · [Development guide](standalone/tensura-additional-additions/README.md) · [Validation](standalone/tensura-additional-additions/docs/VALIDATION-1.31.1.md)
 
 Heavenly Restriction and its race evolutions, Chained/Unbound, Battlewills, Inverted Spear of Heaven, Unique and Ultimate skills, Marauder’s Map, Fusion, Parallel World Jumper, The High Realm and its encounters, Chromatic Orb, Vesper and the Archive of Accord.
 
 
-**New in 1.31.0:** Netrunner adds a held scanner, five quickhacks and a three-slot target-bound upload queue. Thin closed borders, scan-in/out motion, selection sheen and overhead upload animations are rendered directly in Minecraft. [Netrunner guide](wiki/pages/Additions-Netrunner.md).
+**New in 1.31.1:** Netrunner restores the approved scanner’s detailed resource cells, chip cards, smooth typography and red glow. A staged lens → resource → panel opening follows the video reference. [Netrunner guide](wiki/pages/Additions-Netrunner.md).
 
 ## Install
 

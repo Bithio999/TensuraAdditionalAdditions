@@ -23,8 +23,9 @@ import org.joml.Vector4f;
 @EventBusSubscriber(modid = HeavenlyRestriction.ID, value = Dist.CLIENT)
 public final class NetrunnerClient {
   private static CompoundTag state = new CompoundTag();
-  private static long received, selectionAt, openedAt, closedAt;
-  private static boolean down;
+  private static long received, selectionAt;
+  private static boolean down, prepared;
+  private static ScannerMotion MOTION = new ScannerMotion();
   private static int selected, focus = -1, focusTicks;
   private static Object level;
   private static final Map<Long, Long> arrivals = new HashMap<>();
@@ -32,17 +33,26 @@ public final class NetrunnerClient {
   private static Matrix4f projection = new Matrix4f(), view = new Matrix4f();
   private static Vec3 camera = Vec3.ZERO;
   private static boolean matrices;
-  private static final int CYAN = 0xff65ebe8,
-      RED = 0xfff65e64,
+  private static final int CYAN = 0xff65e5f5,
+      RED = 0xffff3742,
       WHITE = 0xffc6f7f2,
-      MUTED = 0xff7badae,
-      NAVY = 0xdf081f2a;
+      MUTED = 0xff7badae;
 
   @EventBusSubscriber(
       modid = HeavenlyRestriction.ID,
       value = Dist.CLIENT,
       bus = EventBusSubscriber.Bus.MOD)
   public static final class Setup {
+    @SubscribeEvent
+    public static void reload(RegisterClientReloadListenersEvent e) {
+      e.registerReloadListener(
+          (net.minecraft.server.packs.resources.ResourceManagerReloadListener)
+              manager -> {
+                ScannerFont.warmup();
+                prepared = false;
+              });
+    }
+
     @SubscribeEvent
     public static void setup(FMLClientSetupEvent e) {
       e.enqueueWork(
@@ -59,7 +69,7 @@ public final class NetrunnerClient {
   }
 
   public static boolean outlined(Entity e) {
-    return active() && e.getId() == focus;
+    return active() && MOTION.sample(System.nanoTime()).chrome() > .15 && e.getId() == focus;
   }
 
   public static void receive(CompoundTag t) {
@@ -101,15 +111,13 @@ public final class NetrunnerClient {
       down = false;
       focus = -1;
       matrices = false;
+      MOTION = new ScannerMotion();
     }
     boolean next = held();
     if (next != down) {
       down = next;
-      if (down) {
-        openedAt = System.nanoTime();
-        closedAt = 0;
-      } else {
-        closedAt = System.nanoTime();
+      MOTION.setHeld(down, System.nanoTime());
+      if (!down) {
         while (m.options.keyAttack.consumeClick()) {}
         while (m.options.keyUse.consumeClick()) {}
       }
@@ -150,6 +158,7 @@ public final class NetrunnerClient {
 
   public static boolean scroll(double amount) {
     if (!active()) return false;
+    if (!MOTION.sample(System.nanoTime()).interactive()) return true;
     if (amount != 0) {
       selected = Math.floorMod(selected + (amount > 0 ? -1 : 1), 5);
       selectionAt = System.nanoTime();
@@ -158,7 +167,7 @@ public final class NetrunnerClient {
   }
 
   public static void click(int button, int action) {
-    if (!active() || action != 1) return;
+    if (!active() || !MOTION.sample(System.nanoTime()).interactive() || action != 1) return;
     if (button == 0 && focus >= 0) send(1, focus, selected);
     else if (button == 1) send(2, -1, 0);
   }
@@ -166,7 +175,13 @@ public final class NetrunnerClient {
   @SubscribeEvent
   public static void layers(RenderGuiLayerEvent.Pre e) {
     if (active()
-        && java.util.Set.of("minecraft:crosshair", "minecraft:chat", "minecraft:overlay_message")
+        && java.util.Set.of(
+                "minecraft:crosshair",
+                "minecraft:chat",
+                "minecraft:overlay_message",
+                "minecraft:hotbar",
+                "minecraft:experience_bar",
+                "minecraft:experience_level")
             .contains(e.getName().toString())) e.setCanceled(true);
   }
 
@@ -185,25 +200,37 @@ public final class NetrunnerClient {
     var m = Minecraft.getInstance();
     if (m.player == null || m.level == null || m.options.hideGui || m.screen != null) return;
     long now = System.nanoTime();
-    double transition =
-        down
-            ? ease((now - openedAt) / 220e6)
-            : closedAt == 0 ? 0 : 1 - ease((now - closedAt) / 180e6);
+    var graphics = e.getGuiGraphics();
+    if (!prepared) {
+      // Prime actual draw paths offscreen, before a first key press. Merely loading PNGs does not
+      // create their GL materials; lazy glyph/icon uploads otherwise interrupt the acquisition.
+      prepared = true;
+      graphics.pose().pushPose();
+      graphics.pose().translate(-8192, -8192, 0);
+      scanner(new ScannerCanvas(graphics, 1), now, new ScannerMotion.Frame(1000, 1, true));
+      graphics.flush();
+      graphics.pose().popPose();
+    }
+    MOTION.renderFrame(now);
+    var motion = MOTION.sample(now);
+    double transition = motion.lens();
     var g = e.getGuiGraphics();
     float w = m.getWindow().getGuiScaledWidth(), h = m.getWindow().getGuiScaledHeight();
     if (transition > 0) {
       var full = new ScannerCanvas(g, (float) transition);
-      full.rect(0, 0, w, h, 0x26137d46);
-      full.gradient(0, 0, w * .28f, h, 0x7d200e17, 0x00200e17, 0x00200e17, 0x7d200e17);
-      full.gradient(w * .72f, 0, w * .28f, h, 0x00200e17, 0x7d200e17, 0x7d200e17, 0x00200e17);
-      full.gradient(0, 0, w, h * .22f, 0x6e140d16, 0x6e140d16, 0x00140d16, 0x00140d16);
-      full.gradient(0, h * .78f, w, h * .22f, 0x00140d16, 0x00140d16, 0x6e140d16, 0x6e140d16);
+      full.rect(0, 0, w, h, 0x24134732);
+      full.gradient(0, 0, w * .28f, h, 0xa636100e, 0x0036100e, 0x0036100e, 0xa636100e);
+      full.gradient(w * .72f, 0, w * .28f, h, 0x0036100e, 0xa636100e, 0xa636100e, 0x0036100e);
+      full.gradient(0, 0, w, h * .22f, 0x93200e0c, 0x93200e0c, 0x00200e0c, 0x00200e0c);
+      full.gradient(0, h * .78f, w, h * .22f, 0x00200e0c, 0x00200e0c, 0x93200e0c, 0x93200e0c);
+      // Fine lens scan lines sit behind the legible plaques, not across their text.
+      for (float y = 0; y < h; y += 2.5f) full.rect(0, y, w, .35f, 0x072e0808);
       float scale = Math.min(w / 1920, h / 1080);
       g.pose().pushPose();
       g.pose().translate((w - 1920 * scale) / 2, (h - 1080 * scale) / 2, 0);
       g.pose().scale(scale, scale, 1);
-      var c = new ScannerCanvas(g, (float) transition);
-      scanner(c, now, transition);
+      var c = new ScannerCanvas(g, 1);
+      scanner(c, now, motion);
       g.pose().popPose();
     }
     overhead(g, w, h, now);
@@ -218,137 +245,303 @@ public final class NetrunnerClient {
     }
   }
 
-  private static void scanner(ScannerCanvas c, long now, double open) {
-    float iris = (float) (.94 + .06 * open), r = 465 * iris;
-    float end = (float) (Math.PI * 2 * open);
-    c.arc(960, 540, r, 0, end, 1.1f, 0x99f2686c);
-    c.arc(960, 540, 57, 0, (float) (Math.PI * 2), 1.2f, RED);
-    c.arc(960, 540, 45, 0, (float) (Math.PI * 2), .8f, 0x77f2686c);
-    c.line(944, 540, 976, 540, 1, RED);
+  private static void scanner(ScannerCanvas root, long now, ScannerMotion.Frame motion) {
+    var lens = root.fade(motion.lens());
+    var chrome = root.fade(motion.chrome());
+    float r = (float) (100 + 365 * ease(motion.age() / 280));
+    lens.glowArc(960, 540, r, 0, (float) (Math.PI * 2), .8f, 0x85a8272e);
+    lens.glowArc(960, 540, 57, 0, (float) (Math.PI * 2), .85f, 0xbfff3742);
+    lens.arc(960, 540, 45, 0, (float) (Math.PI * 2), .85f, 0x80ff3742);
+    lens.line(944, 540, 976, 540, .85f, RED);
+    lens.stroke(List.of(new Point(953, 538), new Point(967, 538), new Point(960, 550)), .85f, RED);
     for (int row = 0; row < 3; row++)
       for (int col = 0; col < 5; col++) {
         float x = 775 + 92.5f * col, y = 432 + 108 * row;
-        c.stroke(
+        var p =
             List.of(
-                new Point(x - 3, y - 3),
-                new Point(x + 3, y - 3),
-                new Point(x + 3, y + 3),
-                new Point(x - 3, y + 3)),
-            1,
-            RED);
+                new Point(x - 7, y - 7),
+                new Point(x + 7, y - 7),
+                new Point(x + 7, y + 7),
+                new Point(x - 7, y + 7));
+        chrome.halo(p, RED);
+        chrome.stroke(p, .85f, 0xcfff3742);
       }
-    for (int k = -6; k <= 6; k++) {
-      float y = 540 + k * 25;
-      float x = 960 - (float) Math.sqrt(Math.max(0, r * r - (y - 540) * (y - 540)));
-      c.line(x - 9, y, x + (k % 3 == 0 ? 15 : 3), y, 1, RED);
-      c.line(1920 - x - 3, y, 1920 - x + 9, y, 1, RED);
+    for (int k = 0; k < 13; k++) {
+      float y = 455 + k * 18;
+      chrome.glowLine(716, y - 3, 725, y, .85f, 0xcfff3742);
+      chrome.line(725, y, 716, y + 3, .85f, 0xcfff3742);
+      chrome.glowLine(1213, y - 3, 1204, y, .85f, 0xcfff3742);
+      chrome.line(1204, y, 1213, y + 3, .85f, 0xcfff3742);
     }
-    double mp = state.getDouble("mp"), max = state.getDouble("maxMp");
-    c.text("MAGICULES  " + number(mp) + " / " + number(max), 693, 113, 25, RED);
-    int cells = 32, lit = max <= 0 ? 0 : (int) Math.ceil(mp / max * cells);
-    for (int k = 0; k < cells; k++)
-      c.rect(693 + k * 17.6f, 160, 10, 40, k < lit ? 0xff66ddd9 : 0x604e7e81);
-    float slide = (float) ((1 - ease((now - openedAt - 35e6) / 185e6)) * -35);
+    chrome.text("1x", 675, 540, 17, RED);
+    var mc = Minecraft.getInstance();
+    var entity = mc.level == null ? null : mc.level.getEntity(focus);
+    chrome.text(
+        entity == null ? "—" : String.format(Locale.ROOT, "%.1f", mc.player.distanceTo(entity)),
+        1237,
+        540,
+        17,
+        RED);
+    edge(chrome, motion);
+    resource(root.fade(motion.resource()), motion);
+    hacks(root, motion, now);
+    data(root.fade(motion.data()), motion);
+    var controls = root.fade(motion.layer(550, 180));
+    controls.mouse(1298, 1004, 0);
+    controls.glowText("QUEUE", 1328, 1006, 21, RED);
+    controls.mouse(1410, 1004, 1);
+    controls.glowText("REMOVE LAST", 1440, 1006, 21, RED);
+    controls.stroke(
+        List.of(
+            new Point(1581, 1006),
+            new Point(1662, 1006),
+            new Point(1662, 1033),
+            new Point(1581, 1033)),
+        1,
+        0xff62e9f7);
+    controls.body("RELEASE", 1588, 1008, 20, 0xff79e8f7);
+    controls.glowText("CLOSE SCANNER", 1675, 1006, 21, RED);
+    String message = state.getString("message");
+    if (!message.isEmpty() && now - received < 2e9) controls.center(message, 960, 880, 20, CYAN);
+  }
+
+  private static void edge(ScannerCanvas c, ScannerMotion.Frame motion) {
+    String timer =
+        String.format(
+            Locale.ROOT,
+            "%02d:%02d",
+            (int) (motion.age() / 60000),
+            (int) (motion.age() / 1000) % 60);
+    var micro = c.fade(.55);
+    micro.dots(55, 38, 3, 2, RED);
+    micro.tracked(timer, 55, 51, 10, RED, 1);
+    micro.tracked("LINK", 55, 62, 10, RED, 1);
+    micro.tracked(timer, 1832, 38, 10, RED, 1);
+    micro.dots(1840, 52, 3, 2, RED);
+    micro.dots(55, 1017, 3, 2, RED);
+    micro.tracked("LINK", 55, 1031, 10, RED, 1);
+    micro.dots(1840, 1017, 3, 2, RED);
+    micro.tracked(timer, 1832, 1031, 10, RED, 1);
     c.g.pose().pushPose();
-    c.g.pose().translate(slide, 0, 0);
-    c.text("AVAILABLE QUICKHACKS:", 200, 321, 30, CYAN);
-    c.line(200, 355, 595, 355, 1, 0x8888eae7);
+    c.g.pose().translate(190, 104, 0);
+    c.g.pose().mulPose(com.mojang.math.Axis.ZP.rotationDegrees(3));
+    c.tracked("SCANNER", 0, 0, 13, 0xb3f3413e, .8f);
+    c.tracked("NETRUNNER", 99, 6, 8, 0x80f3413e, .7f);
+    c.line(0, 22, 187, 22, 1, 0x99ab272a);
+    c.g.pose().popPose();
+    c.glowLine(1549, 131, 1730, 121, .85f, 0x99b1272a);
+    c.glowLine(190, 950, 371, 940, .85f, 0x99b1272a);
+  }
+
+  private static void resource(ScannerCanvas c, ScannerMotion.Frame motion) {
+    double mp = state.getDouble("mp"), max = state.getDouble("maxMp");
+    c.dots(693, 97, 3, 5, 0x99ff323e);
+    c.glowText("MAGICULES: " + number(mp) + "/" + number(max), 719, 108, 23, 0xfff53d42);
+    c.glowLine(693, 151, 1257, 151, 1, 0xcfe72c38);
+    c.tracked("NEURAL RESERVE", 696, 146, 7, 0x99a52a30, 1);
+    int full = max <= 0 ? 0 : (int) Math.floor(Math.clamp(mp / max, 0, 1) * 29);
+    double committed = 0;
+    var costs = state.getList("hacks", 10);
+    for (var n : state.getList("queue", 10)) {
+      int h = ((CompoundTag) n).getInt("hack");
+      if (h >= 0 && h < costs.size()) committed += costs.getCompound(h).getDouble("cost");
+    }
+    int ghost = max <= 0 ? 0 : Math.min(29 - full, (int) Math.ceil(committed / max * 29));
+    for (int k = 0; k < 29; k++) {
+      var cell = c.fade(motion.layer(230 + k * 4, 140) / Math.max(.0001, motion.resource()));
+      float x = 720 + k * 17.55f, y = 163, w = 13.55f;
+      var path = HudGeometry.pip(x, y, w, 44);
+      if (k < full) {
+        cell.halo(path, 0xff56dceb);
+        cell.polygon(path, 0xf256dceb);
+        cell.rect(x + 3, y + 4, 3, 4, 0xd0043e53);
+        cell.line(x + 1, y + 1, x + w - 1, y + 1, .65f, 0xb3b3f7ff);
+      } else if (k < full + ghost) {
+        cell.polygon(path, 0xa83c7581);
+        cell.rect(x + 3, y + 4, 3, 4, 0x90406167);
+      } else {
+        cell.shape(path, 0xd9190a0d, 0xd9ff323e);
+      }
+    }
+  }
+
+  private static void hacks(ScannerCanvas root, ScannerMotion.Frame motion, long now) {
+    var title = root.fade(motion.hacks());
+    title.dots(181, 297, 3, 5, 0xb3cd3538);
+    title.tracked("NEURAL INTERFACE v.01", 195, 293, 12, 0xb3ac3335, .7f);
+    title.glowText("AVAILABLE QUICKHACKS:", 200, 315, 26, 0xff5ce5fa);
+    title.glowLine(200, 361, 598, 361, 1, 0xffd62f39);
     var hacks = state.getList("hacks", 10);
+    var queue = state.getList("queue", 10);
     for (int k = 0; k < 5; k++) {
-      float y = 378 + k * 65;
-      boolean on = k == selected;
-      float shift = on ? 8 : 0;
+      double reveal = motion.row(k);
+      if (reveal <= 0) continue;
+      var c = root.fade(reveal);
+      float y = 379 + k * 63, x = k == selected ? 210 : 230, w = k == selected ? 410 : 400;
+      // Build the plaque out of scan fragments, then reveal its contents; no complete menu on frame
+      // one.
+      float assembled = (float) ease((motion.age() - 420 - k * 24) / 160);
+      c.g.pose().pushPose();
+      c.g.pose().translate((1 - assembled) * 18, (1 - assembled) * (k % 2 == 0 ? -3 : 3), 0);
       var h = Quickhack.values()[k];
       var row = k < hacks.size() ? hacks.getCompound(k) : new CompoundTag();
       int cd = row.getInt("cooldown");
       double cost = row.contains("cost") ? row.getDouble("cost") : h.baseCost;
-      int tint = cd > 0 ? 0xff78999a : CYAN;
-      c.panel(230 + shift, y, 400, 57, 12, on ? 0xef0c3541 : NAVY, on ? CYAN : 0x8851a4aa);
-      if (on) {
-        float sheen = (float) Math.clamp((now - selectionAt) / 180e6, 0, 1);
+      boolean queued = false;
+      for (var n : queue) if (((CompoundTag) n).getInt("hack") == k) queued = true;
+      boolean selectedRow = k == selected,
+          poor = state.contains("mp") && state.getDouble("mp") < cost;
+      int tint = poor ? 0xffff565c : CYAN;
+      var path = HudGeometry.chip(x, y, w, 57);
+      if (selectedRow) c.halo(path, poor ? RED : CYAN);
+      c.shape(
+          path,
+          poor ? 0xf0421117 : selectedRow ? 0xf2123c4f : 0xf50a101f,
+          poor ? 0xffd7414c : selectedRow ? 0xff70f2ff : 0xdd3f8a9a);
+      if (selectedRow) {
+        float sweep = (float) ease((now - selectionAt) / 180e6);
         c.polygon(
             List.of(
-                new Point(240 + shift, y + 1),
-                new Point(430 + sheen * 160, y + 1),
-                new Point(450 + sheen * 130, y + 56),
-                new Point(240 + shift, y + 56)),
-            0x2065ebe8);
-        c.line(234 + shift, y + 13, 234 + shift, y + 53, 2, CYAN);
+                new Point(x + 200 + sweep * 40, y + 1),
+                new Point(x + 270 + sweep * 20, y + 1),
+                new Point(x + 225 + sweep * 20, y + 56),
+                new Point(x + 155 + sweep * 40, y + 56)),
+            0x5330c8e5);
       }
-      c.text(h.title, 251 + shift, y + 7, 22, tint);
-      c.text(
-          cd > 0
-              ? String.format(Locale.ROOT, "COOLDOWN  %.1fs", (double) cd)
-              : k == 2 || k == 3 ? "READY  /  CONTROL" : "READY  /  COMBAT",
-          252 + shift,
+      float content = (float) Math.clamp((motion.age() - 450 - k * 24) / 130, 0, 1);
+      var ink = c.fade(content);
+      if (selectedRow) ink.glowText(h.title.toUpperCase(Locale.ROOT), x + 23, y + 7, 25, tint);
+      else ink.text(h.title.toUpperCase(Locale.ROOT), x + 23, y + 7, 25, tint);
+      String status = queued ? "QUEUED" : cd > 0 ? "WAIT " + cd + "s" : poor ? "LOW MP" : "READY";
+      float badgeWidth = ink.width(status, 12, true) + 8;
+      box(ink, x + 23, y + 35, badgeWidth, 16, status, 12, poor ? RED : 0xff80d8ed);
+      String kind = k == 2 || k == 3 ? "CONTROL" : k == 4 ? "FINISHER" : "COMBAT";
+      box(
+          ink,
+          x + 28 + badgeWidth,
           y + 35,
-          13,
-          on ? WHITE : MUTED);
-      c.right(number(cost), 574 + shift, y + 12, 25, tint);
-      c.icon(k, 580 + shift, y + 9, 37, tint);
+          ink.width(kind, 11, true) + 8,
+          16,
+          kind,
+          11,
+          poor ? RED : 0xfff7b05e);
+      float iconX = x + w - 49;
+      ink.stroke(
+          List.of(
+              new Point(iconX, y + 4.5f),
+              new Point(iconX + 45, y + 4.5f),
+              new Point(iconX + 45, y + 52.5f),
+              new Point(iconX, y + 52.5f)),
+          .75f,
+          poor ? RED : selectedRow ? 0xff6beaff : 0xff41859c);
+      ink.icon(k, iconX + 5.5f, y + 11.5f, 34, tint);
+      ink.right(number(cost), iconX - 35, y + 10, 31, tint);
+      ink.line(iconX - 29, y + 16, iconX - 29, y + 38, .75f, tint);
+      ink.line(iconX - 9, y + 16, iconX - 9, y + 38, .75f, tint);
+      ink.text("MP", iconX - 25, y + 22, 12, tint);
+      c.g.pose().popPose();
     }
-    c.text("SCROLL TO SELECT A QUICKHACK", 250, 716, 16, MUTED);
-    c.g.pose().popPose();
+    var help = root.fade(motion.layer(570, 180));
+    help.g.pose().pushPose();
+    help.g.pose().translate(231, 712, 0);
+    help.g.pose().scale(.65f, .65f, 1);
+    help.mouse(0, 0, 0);
+    help.g.pose().popPose();
+    help.tracked("SCROLL TO SELECT A QUICKHACK", 252, 714, 13, 0xffd35a60, .6f);
+  }
+
+  private static void box(
+      ScannerCanvas c, float x, float y, float w, float h, String label, float size, int color) {
+    c.stroke(
+        List.of(new Point(x, y), new Point(x + w, y), new Point(x + w, y + h), new Point(x, y + h)),
+        .75f,
+        color);
+    c.text(label, x + 4, y + 2, size, color);
+  }
+
+  private static void data(ScannerCanvas c, ScannerMotion.Frame motion) {
     var target = state.getCompound("target");
     boolean has = target.contains("id") && target.getInt("id") == focus;
+    float shift = (float) ((1 - ease((motion.age() - 500) / 230)) * 12);
     c.g.pose().pushPose();
-    c.g.pose().translate(-slide, 0, 0);
-    c.panel(1390, 298, 202, 48, 12, 0xee0d3540, CYAN);
-    c.text("DATA", 1410, 308, 27, CYAN);
-    c.panel(1390, 347, 418, 572, 14, 0xe908202a, 0xaa65ebe8);
-    c.text(has ? fit(target.getString("name"), 24) : "NO TARGET", 1414, 372, 31, CYAN);
+    c.g.pose().translate(shift, 0, 0);
+    var tab =
+        List.of(
+            new Point(1390, 299),
+            new Point(1584, 299),
+            new Point(1593, 308),
+            new Point(1593, 347),
+            new Point(1390, 347));
+    c.polygon(tab, 0xf20b0e1e);
+    for (int i = 0; i < tab.size(); i++)
+      if (i != 3) {
+        var a = tab.get(i);
+        var b = tab.get((i + 1) % tab.size());
+        c.line(a.x(), a.y(), b.x(), b.y(), .85f, 0xff61d9ed);
+      }
+    c.text("DATA", 1403, 308, 25, 0xff70e9fa);
+    c.shape(HudGeometry.data(1390, 347, 418, 523), 0xf2090b1a, 0xff499bb2);
     c.text(
-        has ? fit(local(target.getString("race")), 30) : "AIM AT A LIVING TARGET",
-        1414,
-        414,
-        15,
-        MUTED);
-    if (has) c.text(number(target.getDouble("ep")) + " EP", 1414, 442, 19, WHITE);
-    c.line(1414, 474, 1782, 474, 1, 0x8865ebe8);
+        has ? c.fit(target.getString("name").toUpperCase(Locale.ROOT), 378, 28, true) : "NO TARGET",
+        1410,
+        369,
+        28,
+        0xffc8eff5);
+    var mc = Minecraft.getInstance();
+    var entity = mc.level.getEntity(focus);
+    String identity =
+        entity instanceof net.minecraft.world.entity.player.Player
+            ? "PLAYER"
+            : entity != null && entity.getSoundSource() == net.minecraft.sounds.SoundSource.HOSTILE
+                ? "HOSTILE"
+                : "LIVING ENTITY";
+    if (has) box(c, 1410, 407, c.width(identity, 12, true) + 8, 15, identity, 12, 0xffd3e7ec);
+    c.body(has ? "Race / species" : "AIM AT A LIVING TARGET", 1410, 443, 17, 0xff8abfc9);
+    if (has)
+      c.right(c.fit(local(target.getString("race")), 230, 17, false), 1788, 443, 17, 0xffdde6e7);
+    c.body("Existence Points", 1410, 470, 20, 0xff84d9e6);
+    c.right(has ? number(target.getDouble("ep")) + " EP" : "—", 1788, 470, 20, 0xffd6e2e6);
+    c.line(1410, 505, 1788, 505, 1, 0x88426576);
     String[] labels = {"HP", "SHP", "Magicules", "Aura"},
         keys = {"hp", "shp", "mp", "aura"},
-        maxKeys = {"maxHp", "maxShp", "maxMp", "maxAura"};
-    int[] colors = {RED, 0xffd8acff, CYAN, 0xffffd58b};
+        caps = {"maxHp", "maxShp", "maxMp", "maxAura"};
+    int[] colors = {0xffff4d57, 0xff95dbe4, 0xff58d7e8, 0xfff2b06b};
     for (int k = 0; k < 4; k++) {
-      float y = 490 + k * 57;
-      double value = has ? target.getDouble(keys[k]) : 0,
-          cap = has ? target.getDouble(maxKeys[k]) : 0;
-      c.text(labels[k], 1414, y, 21, MUTED);
-      c.right(has ? number(value) + " / " + number(cap) : "—", 1782, y, 21, WHITE);
-      c.rect(1414, y + 29, 368, 3, 0x6053787a);
+      float y = 521 + k * 43;
+      double value = has ? target.getDouble(keys[k]) : 0, cap = has ? target.getDouble(caps[k]) : 0;
+      c.body(labels[k], 1410, y, 19, 0xff67dcf3);
+      c.right(has ? number(value) + " / " + number(cap) : "—", 1788, y, 19, 0xffd3e2e4);
+      c.rect(1410, y + 26, 378, 2, 0x5237657b);
       c.rect(
-          1414, y + 29, (float) (368 * Math.clamp(value / Math.max(1, cap), 0, 1)), 3, colors[k]);
+          1410, y + 26, (float) (378 * Math.clamp(value / Math.max(1, cap), 0, 1)), 2, colors[k]);
     }
-    c.text("ACTIVE EFFECTS", 1414, 735, 16, MUTED);
+    c.tracked("ACTIVE EFFECTS", 1410, 690, 15, 0xff7edff1, .5f);
     var effects = target.getList("effects", 8);
-    for (int k = 0; k < Math.min(3, effects.size()); k++)
-      c.text(fit(local(effects.getString(k)), 29), 1414, 762 + k * 26, 20, CYAN);
-    if (effects.size() > 3) c.text("+" + (effects.size() - 3) + " more", 1414, 832, 14, MUTED);
-    if (has && effects.isEmpty()) c.text("No status effects", 1414, 763, 19, MUTED);
-    c.text("CURRENT CAST", 1414, 850, 15, MUTED);
-    c.text(
-        has
-            ? fit(
-                target.getString("cast").isEmpty()
-                    ? "No active chant"
-                    : local(target.getString("cast")),
-                29)
-            : "—",
-        1414,
-        874,
-        20,
-        CYAN);
-    c.text("TENSURA // NETRUNNER", 1414, 939, 17, CYAN);
+    for (int k = 0; k < Math.min(2, effects.size()); k++)
+      c.body(
+          c.fit("•  " + local(effects.getString(k)), 378, 18, false),
+          1410,
+          720 + k * 26,
+          18,
+          0xffc9dce3);
+    if (has && effects.isEmpty()) c.body("No status effects", 1410, 720, 18, MUTED);
+    if (effects.size() > 2) c.body("+" + (effects.size() - 2) + " more", 1410, 763, 13, MUTED);
+    c.line(1410, 780, 1788, 780, 1, 0x80436a79);
+    c.tracked("CURRENT CAST", 1410, 795, 15, 0xff7edff1, .5f);
+    String cast = target.getString("cast");
+    c.body(
+        has ? cast.isEmpty() ? "No active chant" : c.fit(local(cast), 378, 19, false) : "—",
+        1410,
+        823,
+        19,
+        cast.isEmpty() ? MUTED : 0xfff7b46d);
+    c.rect(1410, 848, 378, 3, 0xff324a5c);
+    if (has && !cast.isEmpty()) {
+      float phase = (float) ((System.nanoTime() / 1e9) % 1);
+      c.rect(1410 + phase * 260, 848, 118, 3, 0xffe59663);
+    }
+    c.tracked("TENSURA // NETRUNNER", 1412, 880, 13, 0xff3c7d93, 2);
     c.g.pose().popPose();
-    c.text("LEFT CLICK  /  QUEUE QUICKHACK", 1390, 963, 19, CYAN);
-    c.text("RIGHT CLICK  /  CANCEL LAST UPLOAD", 1390, 994, 17, MUTED);
-    c.text("RELEASE SKILL KEY  /  CLOSE SCANNER", 1390, 1024, 17, MUTED);
-    String message = state.getString("message");
-    if (!message.isEmpty() && now - received < 2e9) c.text(message, 760, 860, 21, CYAN);
-    // A single scan line crosses the view during entry; no perpetual flashing full-screen texture.
-    double sweep = Math.clamp((now - openedAt) / 550e6, 0, 1);
-    if (sweep < 1)
-      c.line(510, (float) (105 + sweep * 870), 1370, (float) (105 + sweep * 870), 1.3f, 0x9965ebe8);
   }
 
   private static void overhead(net.minecraft.client.gui.GuiGraphics g, float w, float h, long now) {
@@ -380,12 +573,14 @@ public final class NetrunnerClient {
       g.pose().translate(x, y, 0);
       g.pose().scale(scale, scale, 1);
       var c = new ScannerCanvas(g, 1);
-      if (active()) {
-        String name = fit(t.getName().getString().toUpperCase(Locale.ROOT), 28);
-        c.center(name, 0, -37, 22, CYAN);
+      if (active() && MOTION.sample(now).chrome() > 0) {
+        c = c.fade(MOTION.sample(now).chrome());
+        String name = c.fit(t.getName().getString().toUpperCase(Locale.ROOT), 440, 25, true);
+        c.glowText(name, -c.width(name, 25, true) / 2, -37, 25, 0xff71e9fa);
         c.line(-5, -8, 0, -2, 1, CYAN);
         c.line(0, -2, 5, -8, 1, CYAN);
       }
+      c = new ScannerCanvas(g, 1);
       var list = group.getValue();
       for (int k = 0; k < list.size(); k++) {
         var q = list.get(k);
@@ -396,11 +591,13 @@ public final class NetrunnerClient {
         double progress =
             HudGeometry.progress(q.getInt("elapsed"), q.getInt("total"), (now - received) / 50e6);
         boolean first = q.getLong("id") == state.getList("queue", 10).getCompound(0).getLong("id");
-        c.panel(x0, y0, 42, 42, 5, 0xe51c1b24, first ? RED : 0x997f9c9d);
+        var tile = HudGeometry.data(x0, y0, 42, 42);
+        c.halo(tile, RED);
+        c.shape(tile, 0xde3d131a, 0xfffa3b46);
         if (first)
           c.rect(
               x0 + 1, y0 + 41 - (float) (40 * progress), 40, (float) (40 * progress), 0x807c323d);
-        c.icon(hack, x0 + 6, y0 + 5, 30, first ? RED : WHITE);
+        c.icon(hack, x0 + 6, y0 + 5, 30, RED);
         if (first) c.text((int) (progress * 100) + "%", x0 - 1, y0 - 20, 16, RED);
       }
       Long flash = flashes.get(t.getId());
@@ -426,10 +623,6 @@ public final class NetrunnerClient {
 
   private static String local(String text) {
     return net.minecraft.network.chat.Component.translatable(text).getString();
-  }
-
-  private static String fit(String t, int n) {
-    return t.length() > n ? t.substring(0, n - 1) + "…" : t;
   }
 
   private NetrunnerClient() {}

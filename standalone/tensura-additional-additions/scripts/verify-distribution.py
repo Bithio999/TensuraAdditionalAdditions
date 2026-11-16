@@ -6,7 +6,7 @@ import json, re, struct, tomllib, zipfile, subprocess, sys
 root = Path(__file__).resolve().parents[1]
 subprocess.run([sys.executable, str(root.parents[1]/'scripts/audit-mentor-archive.py')], check=True)
 resources = root / 'src/main/resources'
-jar = root / 'build/libs/TensuraAdditionalAdditions-1.31.0.jar'
+jar = root / 'build/libs/TensuraAdditionalAdditions-1.31.1.jar'
 assets = resources / 'assets/heavenlyrestriction'
 required_art = [*(f'textures/race/{name}.png' for name in (
     'fettered_human', 'tempered_vessel', 'unshackled', 'heavenly_restricted', 'heavenbreaker')),
@@ -38,7 +38,7 @@ for name in config['mixins'] + config.get('client', []):
 with zipfile.ZipFile(jar) as z:
     names = set(z.namelist())
     mods = tomllib.loads(z.read('META-INF/neoforge.mods.toml').decode())
-    assert [(m['modId'], m['version']) for m in mods['mods']] == [('heavenlyrestriction', '1.31.0')]
+    assert [(m['modId'], m['version']) for m in mods['mods']] == [('heavenlyrestriction', '1.31.1')]
     assert mods['mods'][0]['displayName'] == 'TensuraAdditionalAdditions'
     language=json.loads(z.read('assets/heavenlyrestriction/lang/en_us.json'))
     for key,label in [('heavenlyrestriction.skill.parallel_world_jumper','Parallel World Jumper'),('heavenlyrestriction.skill.fusion','Fusion'),('heavenlyrestriction.skill.prospector','Prospector'),('heavenlyrestriction.skill.mode.prospector.refine','Refine'),('heavenlyrestriction.skill.mode.fusion.fuse','Fuse'),('heavenlyrestriction.skill.mode.parallel_world_jumper.world_hop','World Jump'),('heavenlyrestriction.skill.mode.parallel_world_jumper.world_select','World Select')]:
@@ -71,12 +71,28 @@ with zipfile.ZipFile(jar) as z:
     assert 'dev/heavenlyrestriction/MetisReview.class' not in names
     assert 'data/metisreview/structure/empty.nbt' not in names
     assert not any(n.startswith('data/netrunnerreview/') or n.startswith(('dev/heavenlyrestriction/NetrunnerReview','dev/heavenlyrestriction/NetrunnerGameTests')) for n in names)
-    for cls in ['NetrunnerSkill','netrunner/Netrunner','netrunner/NetrunnerNetwork','netrunner/NetrunnerEffects','client/netrunner/NetrunnerClient','mixin/client/NetrunnerMouseMixin','mixin/client/NetrunnerInputMixin','mixin/client/NetrunnerOutlineMixin','mixin/client/NetrunnerNativeHudMixin']:
+    for cls in ['NetrunnerSkill','netrunner/Netrunner','netrunner/NetrunnerNetwork','netrunner/NetrunnerEffects','client/netrunner/NetrunnerClient','client/netrunner/ScannerMotion','client/netrunner/ScannerFont','client/netrunner/ScannerMaterial','mixin/client/NetrunnerMouseMixin','mixin/client/NetrunnerInputMixin','mixin/client/NetrunnerOutlineMixin','mixin/client/NetrunnerNativeHudMixin']:
         assert 'dev/heavenlyrestriction/'+cls+'.class' in names
-    for name in ['bolt','brain','eye','legs','skull']:
+    for name in ['bolt','brain','eye','legs','skull','type_medium','type_medium_glow','type_semibold','type_semibold_glow']:
         path='assets/heavenlyrestriction/textures/gui/netrunner/'+name+'.png'
         assert z.read(path)==(resources/path).read_bytes()
     assert z.read('assets/heavenlyrestriction/font/scanner.ttf')==(assets/'font/scanner.ttf').read_bytes()
+    for face in ['medium','semibold']:
+        for glow in ['', '_glow']:
+            for size,dim in [(6,128),(12,256),(24,512)]:
+                path='assets/heavenlyrestriction/textures/gui/netrunner/type_'+face+glow+'_'+str(size)+'.png'
+                data=z.read(path)
+                assert data==(resources/path).read_bytes()
+                assert struct.unpack('>II', data[16:24])==(dim,dim)
+    assert z.read('assets/heavenlyrestriction/font/scanner_medium.ttf')==(assets/'font/scanner_medium.ttf').read_bytes()
+    for face in ['medium','semibold']:
+        path='assets/heavenlyrestriction/scanner/type_'+face+'.json'
+        assert z.read(path)==(resources/path).read_bytes()
+        metrics=json.loads(z.read(path))
+        assert metrics['size']==48 and metrics['width']==metrics['height']==1024
+        for glyph in metrics['glyphs'].values():
+            assert 0 <= glyph['x'] < glyph['x']+glyph['w'] <= 1024
+            assert 0 <= glyph['y'] < glyph['y']+glyph['h'] <= 1024
     assert 'assets/heavenlyrestriction/font/rajdhani-license.txt' in names
     assert language['heavenlyrestriction.skill.netrunner']=='Netrunner'
     assert 'dev/heavenlyrestriction/HighRealmGameTests.class' not in names
@@ -224,7 +240,7 @@ with zipfile.ZipFile(jar) as z:
     for path in ['data/heavenlyrestriction/loot_table/entities/kael_veyr.json','data/heavenlyrestriction/advancement/starless_wayfarer.json','data/c/tags/entity_type/bosses.json','data/tensura/tags/entity_type/boss_for_hero.json','assets/heavenlyrestriction/models/item/kael_veyr_spawn_egg.json']:
         assert z.read(path)==(resources/path).read_bytes()
     assert language['entity.heavenlyrestriction.kael_veyr']=='Kael Veyr'
-print('Independent 1.31.0 JAR, native dependency metadata, all extracted icons/rigs/animations and mixin classes verified; no Myths classes, bundled dependencies or review fixtures.')
+print('Independent 1.31.1 JAR, native dependency metadata, all extracted icons/rigs/animations and mixin classes verified; no Myths classes, bundled dependencies or review fixtures.')
 
 with zipfile.ZipFile(jar) as z:
     assert json.loads(z.read('heavenlyrestriction.mixins.json'))['plugin'] == 'dev.heavenlyrestriction.laplace.expand.ParameterMixinPlugin'

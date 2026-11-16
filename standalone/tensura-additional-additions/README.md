@@ -2,10 +2,10 @@
 
 An independent **Tensura: Reincarnated** addon for **Minecraft 1.21.1 / NeoForge**. It focuses on Heavenly Restriction, Battlewills and world travel.
 
-[Download 1.31.0](../../releases/TensuraAdditionalAdditions-1.31.0.jar) · [Wiki](../../wiki/pages/TensuraAdditionalAdditions.md) · [Gameplay guide](docs/GUIDE.md) · [Validation](docs/VALIDATION-1.31.0.md)
+[Download 1.31.1](../../releases/TensuraAdditionalAdditions-1.31.1.jar) · [Wiki](../../wiki/pages/TensuraAdditionalAdditions.md) · [Gameplay guide](docs/GUIDE.md) · [Validation](docs/VALIDATION-1.31.1.md)
 
 
-**New in 1.31.0:** Netrunner adds a held scanner, five quickhacks and a three-slot target-bound upload queue. Thin closed borders, scan-in/out motion, selection sheen and overhead upload animations are rendered directly in Minecraft. [Netrunner guide](../../wiki/pages/Additions-Netrunner.md).
+**New in 1.31.1:** Netrunner restores the approved scanner’s detailed resource cells, chip cards, smooth typography and red glow. A staged lens → resource → panel opening follows the video reference. [Netrunner guide](../../wiki/pages/Additions-Netrunner.md).
 
 ## Content
 
@@ -48,7 +48,7 @@ Use **Java 21**, **Minecraft 1.21.1** and **NeoForge 21.1.209+**. Install:
 
 1. **Tensura: Reincarnated 2.0.1.3 or 2.0.1.4** and its required libraries: ManasCore 4.0.0.2, Architectury 13.0.8+, SmartBrainLib and TerraBlender.
 2. **GeckoLib 4.9.2+**, within the 4.x series.
-3. **TensuraAdditionalAdditions-1.31.0.jar**.
+3. **TensuraAdditionalAdditions-1.31.1.jar**.
 
 Install the addon on both client and server for multiplayer. Parallel World Jumper works only in private single-player. Use this addon **instead of Tensura Myths**; the loader rejects installing both.
 
@@ -70,7 +70,7 @@ python3 scripts/fetch-runtime.py
 ./gradlew build
 ```
 
-Use **Java 21**. Output: `build/libs/TensuraAdditionalAdditions-1.31.0.jar`.
+Use **Java 21**. Output: `build/libs/TensuraAdditionalAdditions-1.31.1.jar`.
 
 - `./gradlew runClient` — development client.
 - `./gradlew runGameTestServer` — native integration checks.

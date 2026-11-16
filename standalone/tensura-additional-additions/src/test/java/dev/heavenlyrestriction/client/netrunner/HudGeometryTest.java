@@ -62,4 +62,21 @@ final class HudGeometryTest {
     assertEquals(1, progress(19, 20, 50));
     assertEquals(.25, progress(0, 20, 100));
   }
+
+  @Test
+  void chipStepAndNotchedPipsRemainClosedCompleteShapes() {
+    var chip = chip(230, 379, 400, 57);
+    assertEquals(7, chip.size());
+    assertEquals(5, triangulate(chip).size());
+    assertEquals(230, chip.get(0).x());
+    assertEquals(236, chip.get(5).x());
+    assertTrue(chip.get(5).y() > chip.get(6).y());
+    var cell = pip(720, 163, 13.55f, 44);
+    assertEquals(3, triangulate(cell).size());
+    assertTrue(cell.get(3).x() < cell.get(2).x());
+    assertTrue(cell.get(3).y() > cell.get(2).y());
+    for (var point : offset(chip, -.425f)) {
+      assertTrue(Float.isFinite(point.x()) && Float.isFinite(point.y()));
+    }
+  }
 }

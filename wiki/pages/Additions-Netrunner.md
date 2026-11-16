@@ -24,11 +24,13 @@ The scanner shows the target’s HP, SHP, magicules, aura, status effects and cu
 - Allies, owned pets and protected players are excluded. Normal PvP rules apply.
 - Death, dimension changes, logout, losing the skill or skill interference cancel outstanding uploads.
 
-**Damage type:** None for scanning; see each quickhack below. Opening the scanner costs nothing.
+**Damage type:** None for scanning; see each quickhack below. Opening the scanner costs nothing. The lens acquires the target first; the resource cells and quickhack panels assemble next. Queue controls become ready after this brief opening animation.
 
 ![Native Netrunner scanner](../media/netrunner-scanner.png)
 
-[Watch the native HUD animation](../media/netrunner-native-hud.mp4) — silent recording of scanning, queueing, uploads after release and reopening.
+[Watch the native HUD animation](../media/netrunner-native-hud.mp4) — updated in-game recording of the staged opening, detailed chip cards, queueing, uploads after release and reopening.
+
+[Opening animation stages](../media/netrunner-opening.png)
 
 ![Uploads above the target](../media/netrunner-queue.png)
 
