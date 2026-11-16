@@ -28,6 +28,7 @@ public final class NetrunnerReview {
   static volatile LivingEntity target;
   static boolean finished;
   static int entry;
+  static float[] savedHudPosition;
   static long frameAt, guiAt;
   static java.lang.reflect.Field materialCount, jobCount;
   static final List<String> FRAME_TIMES = new ArrayList<>();
@@ -65,6 +66,12 @@ public final class NetrunnerReview {
               (now - guiAt) / 1e6,
               materials,
               jobs));
+    if (ticks >= 80 && ticks <= 410 && Minecraft.getInstance().screen == null) {
+      float alpha = com.mojang.blaze3d.systems.RenderSystem.getShaderColor()[3];
+      if (Math.abs(alpha - 1) > .0001f
+          || org.lwjgl.opengl.GL11.glIsEnabled(org.lwjgl.opengl.GL11.GL_SCISSOR_TEST))
+        error = "Native HUD leaked shader alpha/scissor state: alpha=" + alpha;
+    }
     frameAt = now;
   }
 
@@ -331,6 +338,7 @@ public final class NetrunnerReview {
         TensuraKeybinds.ACTIVATE_SLOT_1.setDown(false);
         TensuraKeybinds.onAbilityReleased(0);
       }
+      if (ticks == 158) shot("native-hud-return");
       if (ticks == 170) shot("uploads-after-release");
       if (ticks == 235) {
         server(
@@ -358,18 +366,47 @@ public final class NetrunnerReview {
       if (ticks == 335) shot("scanner-ultrawide");
       if (ticks == 345) org.lwjgl.glfw.GLFW.glfwSetWindowSize(m.getWindow().getWindow(), 1280, 720);
       if (ticks == 355) {
-        Files.write(OUT.resolve("frame-times.csv"), FRAME_TIMES);
-        if (entry != ENTRY_TIMES.length)
-          throw new IllegalStateException("Missed native acquisition frames: " + entry);
         TensuraKeybinds.ACTIVATE_SLOT_1.setDown(false);
         TensuraKeybinds.onAbilityReleased(0);
         m.options.guiScale().set(2);
         m.resizeDisplay();
+      }
+      if (ticks == 365) {
+        var positions =
+            io.github.manasmods.tensura.handler.client.OverlayHandler.getPositionsById(0);
+        savedHudPosition = positions.clone();
+        positions[0] = m.getWindow().getGuiScaledWidth() - 150;
+      }
+      if (ticks == 370) {
+        if (io.github.manasmods.tensura.handler.client.OverlayHandler.isLeftSide(0))
+          throw new IllegalStateException("Native right-anchored fixture did not apply");
+        shot("native-hud-right-normal");
+      }
+      if (ticks == 375) {
+        TensuraKeybinds.ACTIVATE_SLOT_1.setDown(true);
+        TensuraKeybinds.onAbilityPressed(0);
+      }
+      if (ticks == 378) shot("native-hud-right-retract");
+      if (ticks == 390) {
+        TensuraKeybinds.ACTIVATE_SLOT_1.setDown(false);
+        TensuraKeybinds.onAbilityReleased(0);
+      }
+      if (ticks == 392) shot("native-hud-right-return");
+      if (ticks == 400) {
+        var positions =
+            io.github.manasmods.tensura.handler.client.OverlayHandler.getPositionsById(0);
+        System.arraycopy(savedHudPosition, 0, positions, 0, positions.length);
+      }
+      if (ticks == 410) {
+        Files.write(OUT.resolve("frame-times.csv"), FRAME_TIMES);
+        if (entry != ENTRY_TIMES.length)
+          throw new IllegalStateException("Missing acquisition stages");
         Files.writeString(
             OUT.resolve("passed.txt"),
             "Native skill key, scanner, MouseHandler wheel/click, two queued uploads, release"
-                + " continuation, target damage, GUI scales 1/2/3, six staged activation"
-                + " frames.\n");
+                + " continuation, target damage, GUI scales 1/2/3, six staged activation frames;"
+                + " animated HUD handoff/return; right-anchored panes; clean shader/scissor"
+                + " state.\n");
         finished = true;
         m.stop();
       }

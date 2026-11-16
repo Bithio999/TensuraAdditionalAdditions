@@ -72,6 +72,32 @@ final class ScannerMotionTest {
   }
 
   @Test
+  void originalHudRetractsBeforeSkillsAndReturnsFromItsCurrentState() {
+    var a = new ScannerMotion();
+    long t = 1_000_000_000;
+    assertEquals(1, a.sample(t).nativeStatus());
+    a.setHeld(true, t);
+    assertEquals(1, a.sample(t).nativeStatus());
+    var early = a.sample(t + 80_000_000);
+    assertTrue(early.nativeStatus() > 0 && early.nativeStatus() < 1);
+    assertEquals(1, early.nativeSkills());
+    assertEquals(1, early.nativeHotbar());
+    var middle = a.sample(t + 240_000_000);
+    assertEquals(0, middle.nativeStatus());
+    assertTrue(middle.nativeSkills() > 0 && middle.nativeSkills() < 1);
+    a.setHeld(false, t + 240_000_000);
+    var startReturn = a.sample(t + 240_000_000);
+    assertEquals(middle.nativeSkills(), startReturn.nativeSkills(), .00001);
+    var returning = a.sample(t + 300_000_000);
+    assertTrue(returning.nativeStatus() > 0 && returning.nativeStatus() < 1);
+    assertTrue(returning.nativeSkills() > startReturn.nativeSkills());
+    var restored = a.sample(t + 450_000_000);
+    assertEquals(1, restored.nativeStatus());
+    assertEquals(1, restored.nativeSkills());
+    assertEquals(1, restored.nativeHotbar());
+  }
+
+  @Test
   void closingBeginsFromCurrentLayerOpacity() {
     var a = new ScannerMotion();
     long t = 1_000_000_000;

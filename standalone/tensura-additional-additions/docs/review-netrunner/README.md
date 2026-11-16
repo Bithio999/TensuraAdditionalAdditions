@@ -9,3 +9,5 @@ The uploaded Cyberpunk reference informed entry/exit timing, cyan/red plaques, r
 The entry handler samples the timestamp used for native GUI rendering, rather than the end of a potentially slow frame. `entry-timing.txt` records six acquisition stages. Entry images are extracted from the X11 recording; framebuffer readback and PNG compression are kept out of the opening animation.
 
 `frame-times.csv` records tick, scanner-active flag, whole-frame interval, GUI-pass duration, batched material count and sprite/text job count. Compare runs without a recorder; exclude the screenshot ticks when measuring. Opening samples use ticks 100–118, steady scanning uses 124–143, and reopening uses 235–253. The capture machine uses software OpenGL; frame rates are not a hardware performance guarantee.
+
+The HUD handoff review also captures partially restored native panes, then temporarily moves the status pane to the right and checks retraction/return there. Shader alpha and scissor state are checked after GUI rendering. The fixture restores the native position before exiting.

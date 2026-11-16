@@ -26,6 +26,7 @@ public final class NetrunnerClient {
   private static long received, selectionAt;
   private static boolean down, prepared;
   private static ScannerMotion MOTION = new ScannerMotion();
+  private static ScannerMotion.Frame HUD_FRAME = new ScannerMotion.Frame(0, 0, false);
   private static int selected, focus = -1, focusTicks;
   private static Object level;
   private static final Map<Long, Long> arrivals = new HashMap<>();
@@ -66,6 +67,20 @@ public final class NetrunnerClient {
   public static boolean active() {
     var m = Minecraft.getInstance();
     return down && m.screen == null && m.player != null && !m.options.hideGui;
+  }
+
+  public static ScannerMotion.Frame hudMotion() {
+    var m = Minecraft.getInstance();
+    if (m.player == null || m.level == null || m.screen != null || m.options.hideGui)
+      return new ScannerMotion.Frame(0, 0, false);
+    return HUD_FRAME;
+  }
+
+  @SubscribeEvent(priority = net.neoforged.bus.api.EventPriority.HIGHEST)
+  public static void beforeHud(RenderGuiEvent.Pre e) {
+    long now = System.nanoTime();
+    MOTION.renderFrame(now);
+    HUD_FRAME = MOTION.sample(now);
   }
 
   public static boolean outlined(Entity e) {
@@ -114,6 +129,7 @@ public final class NetrunnerClient {
       focus = -1;
       matrices = false;
       MOTION = new ScannerMotion();
+      HUD_FRAME = new ScannerMotion.Frame(0, 0, false);
     }
     boolean next = held();
     if (next != down) {
@@ -174,19 +190,6 @@ public final class NetrunnerClient {
   }
 
   @SubscribeEvent
-  public static void layers(RenderGuiLayerEvent.Pre e) {
-    if (active()
-        && java.util.Set.of(
-                "minecraft:crosshair",
-                "minecraft:chat",
-                "minecraft:overlay_message",
-                "minecraft:hotbar",
-                "minecraft:experience_bar",
-                "minecraft:experience_level")
-            .contains(e.getName().toString())) e.setCanceled(true);
-  }
-
-  @SubscribeEvent
   public static void level(RenderLevelStageEvent e) {
     if (e.getStage() == RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
       projection.set(e.getProjectionMatrix());
@@ -217,8 +220,7 @@ public final class NetrunnerClient {
         graphics.flush();
         graphics.pose().popPose();
       }
-      MOTION.renderFrame(now);
-      var motion = MOTION.sample(now);
+      var motion = HUD_FRAME;
       double transition = motion.lens();
       var g = e.getGuiGraphics();
       float w = m.getWindow().getGuiScaledWidth(), h = m.getWindow().getGuiScaledHeight();

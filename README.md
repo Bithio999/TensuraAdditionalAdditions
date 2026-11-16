@@ -2,12 +2,12 @@
 
 An active addon for **Tensura: Reincarnated**, **Minecraft 1.21.1** and **NeoForge**.
 
-[Download 1.31.2](releases/TensuraAdditionalAdditions-1.31.2.jar) · [Gameplay wiki](wiki/pages/TensuraAdditionalAdditions.md) · [Development guide](standalone/tensura-additional-additions/README.md) · [Validation](standalone/tensura-additional-additions/docs/VALIDATION-1.31.2.md)
+[Download 1.31.3](releases/TensuraAdditionalAdditions-1.31.3.jar) · [Gameplay wiki](wiki/pages/TensuraAdditionalAdditions.md) · [Development guide](standalone/tensura-additional-additions/README.md) · [Validation](standalone/tensura-additional-additions/docs/VALIDATION-1.31.3.md)
 
 Heavenly Restriction and its race evolutions, Chained/Unbound, Battlewills, Inverted Spear of Heaven, Unique and Ultimate skills, Marauder’s Map, Fusion, Parallel World Jumper, The High Realm and its encounters, Chromatic Orb, Vesper and the Archive of Accord.
 
 
-**New in 1.31.2:** Netrunner cooldowns are now 2 / 3 / 4 / 4 / 15 seconds. Mastery halves upload times. [Netrunner guide](wiki/pages/Additions-Netrunner.md).
+**New in 1.31.3:** The native HUD retracts and fades into Netrunner’s scanner, then animates back on release. [Netrunner guide](wiki/pages/Additions-Netrunner.md).
 
 ## Install
 

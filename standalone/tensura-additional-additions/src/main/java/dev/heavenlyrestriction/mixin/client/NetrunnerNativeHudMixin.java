@@ -1,31 +1,32 @@
 package dev.heavenlyrestriction.mixin.client;
 
-import dev.heavenlyrestriction.client.netrunner.NetrunnerClient;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import dev.heavenlyrestriction.client.netrunner.NativeHudTransition;
+import io.github.manasmods.tensura.client.screen.widgets.OverlayElement;
 import io.github.manasmods.tensura.handler.client.OverlayHandler;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.*;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import net.minecraft.client.gui.GuiGraphics;
+import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.injection.At;
 
-/** Native HUD yields its space to the held scanner; all layers return immediately on release. */
-@Mixin(OverlayHandler.class)
+/** Use the pane's already-applied native transform, including user position/scale/mirroring. */
+@Mixin(value = OverlayHandler.class, remap = false)
 public abstract class NetrunnerNativeHudMixin {
-  @Inject(
-      method = {
-        "renderAbilities",
-        "renderAnalysis",
-        "renderStatus",
-        "renderStatusBars",
-        "renderFoodDecoration",
-        "renderArmorDecoration",
-        "renderAirDecoration",
-        "renderBarrierDecoration",
-        "renderMountHealthDecoration",
-        "renderMountSpiritualHealthDecoration"
-      },
-      at = @At("HEAD"),
-      cancellable = true,
-      remap = false)
-  private static void additions$scanner(CallbackInfo ci) {
-    if (NetrunnerClient.active()) ci.cancel();
+  @Shadow private static GuiGraphics graphics;
+
+  @WrapOperation(
+      method = "renderElement",
+      at =
+          @At(
+              value = "INVOKE",
+              target =
+                  "Lio/github/manasmods/tensura/client/screen/widgets/OverlayElement;render()V"))
+  private static void additions$transition(
+      OverlayElement receiver,
+      Operation<Void> original,
+      OverlayElement element,
+      int id,
+      float scale) {
+    NativeHudTransition.tensura(graphics, receiver, id, scale, () -> original.call(receiver));
   }
 }

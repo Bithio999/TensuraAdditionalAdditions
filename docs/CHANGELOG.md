@@ -1,5 +1,11 @@
 # Changelog
 
+## Additions 1.31.3 — Native HUD handoff
+
+- Retract native status/resource panes toward their edge before fading the skill panels and sliding/fading the hotbar, matching the reference scanner sequence. Animate their return on release.
+- Use native pane transforms and a shared per-frame clock; preserve user HUD positions/scales and restore clipping, tint and blend state after each draw. Keep the optimized scanner rendering.
+- Add transition continuity tests and native left/right HUD checks; update the in-game recording and wiki.
+
 ## Additions 1.31.2 — Faster quickhacking and scanner rendering
 
 - Reduce Short Circuit cooldown from 8 to 2 seconds, Synapse Burnout from 12 to 3, Reboot Optics from 10 to 4, Cripple Movement from 12 to 4, and Suicide from 60 to 15.

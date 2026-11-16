@@ -66,6 +66,27 @@ public final class ScannerMotion {
       return layer(500, 230);
     }
 
+    private double nativeLayer(double start, double duration) {
+      double t = Math.clamp((age - start) / duration, 0, 1);
+      return t * t * (3 - 2 * t) * exit;
+    }
+
+    public double nativeStatus() {
+      return 1 - nativeLayer(0, 200);
+    }
+
+    public double nativeSkills() {
+      return 1 - nativeLayer(150, 200);
+    }
+
+    public double nativeHotbar() {
+      return 1 - nativeLayer(170, 190);
+    }
+
+    public double nativeCrosshair() {
+      return 1 - nativeLayer(0, 100);
+    }
+
     public boolean interactive() {
       return held && age >= 660;
     }
