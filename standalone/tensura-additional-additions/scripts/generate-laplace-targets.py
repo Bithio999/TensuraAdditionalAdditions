@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build optional, stack-neutral parameter hook targets from the two supported native APIs."""
+"""Build optional, stack-neutral parameter hook targets from the supported native APIs."""
 from pathlib import Path
 import zipfile,json,re,struct,os
 root=Path(__file__).resolve().parents[1]
@@ -18,7 +18,7 @@ def class_flags(data):
  return struct.unpack_from('>H',data,pos)[0]
 
 cache=Path(os.environ.get('GRADLE_USER_HOME',str(Path.home()/'.gradle')))/'caches/modules-2/files-2.1/curse.maven/tensura-reincarnated-643695'
-for version in ('8793360','9289888'):
+for version in ('8793360','9289888','9476869'):
  for jar in (cache/version).rglob('*.jar'):
   with zipfile.ZipFile(jar) as z:
    names.update(n[:-6].replace('/','.') for n in z.namelist() if n.endswith('.class') and n.startswith('io/github/manasmods/tensura/') and not n.startswith('io/github/manasmods/tensura/config/') and b'io/github/manasmods/tensura/config/ability/' in z.read(n) and not class_flags(z.read(n))&0x200)

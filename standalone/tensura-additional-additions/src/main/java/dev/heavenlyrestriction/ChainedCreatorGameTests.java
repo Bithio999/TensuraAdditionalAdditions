@@ -24,7 +24,7 @@ public final class ChainedCreatorGameTests {
         return new SkillCreationMenu(0,UniqueSkills.CREATOR.get(),1,List.of(skill.getRegistryName())).clickMenuButton(p,0);
     }
     @GameTest(template="empty",timeoutTicks=100)
-    public static void inheritedCreatorUsesNativeMenuToCreateReplaceAndRenewTemporarySkills(GameTestHelper h){
+    public static void inheritedCreatorUsesNativeMenuToCreateReplaceAndRenewNativeSkills(GameTestHelper h){
         var p=owner(h);var storage=SkillAPI.getSkillsFrom(p);var root=storage.getSkill(UniqueSkills.CREATOR.get()).orElseThrow();double mp=EnergyHelper.getMaxMagicule(p);
         // Reproduce the formerly rejected handoff: a Creator tag alone carries no trusted scope.
         var unscoped=new TensuraSkillInstance(UniqueSkills.FIGHTER.get());unscoped.getOrCreateTag().putString("Creator","tensura:creator");
@@ -35,7 +35,9 @@ public final class ChainedCreatorGameTests {
         h.assertTrue(root.getCoolDown(1)==UniqueSkills.CREATOR.get().getCreationCooldown(root,p),"Native creation cooldown changed");near(h,EnergyHelper.getMaxMagicule(p),mp,"Temporary creation spent permanent MP");
         h.assertTrue(!ChainedContext.inherited(p) && !RestrictionData.learnReward(p,UniqueSkills.MUSICIAN.get()),"Creation leaked a blanket learning exemption");
         root.setCoolDown(0,1);root.setMastery(root.getMaxMastery());h.assertTrue(create(p,UniqueSkills.OBSERVER.get()),"Replacement menu failed");
-        h.assertTrue(storage.getSkill(UniqueSkills.FIGHTER.get()).isEmpty(),"Native replacement left the previous temporary skill");var second=storage.getSkill(UniqueSkills.OBSERVER.get()).orElseThrow();h.assertTrue(second.isTemporarySkill(),"Replacement became permanent");
+        h.assertTrue(storage.getSkill(UniqueSkills.FIGHTER.get()).isEmpty(),"Native replacement left the previous temporary skill");var second=storage.getSkill(UniqueSkills.OBSERVER.get()).orElseThrow();
+        int nativeTimer=UniqueSkills.CREATOR.get().getCreatedSkillTimer(root,p);
+        h.assertTrue(second.getRemoveTime()==nativeTimer && second.isTemporarySkill()==(nativeTimer!=-1),"Replacement diverged from the current native Creator lifetime");
         second.setRemoveTime(60);root.setCoolDown(0,1);h.assertTrue(create(p,UniqueSkills.OBSERVER.get()) && second.getRemoveTime()==1200,"Native mastered renewal failed");
         h.assertTrue(!ChainedContext.inherited(p),"Renewal leaked its scope");h.succeed();
     }

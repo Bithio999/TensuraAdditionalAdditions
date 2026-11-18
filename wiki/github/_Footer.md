@@ -1,3 +1,3 @@
-[All wikis](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki) · [Tensura Myths 0.36.1 — discontinued](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Tensura-Myths) · [TensuraAdditionalAdditions 1.31.3](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/TensuraAdditionalAdditions)
+[All wikis](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki) · [Tensura Myths 0.36.1 — discontinued](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/Tensura-Myths) · [TensuraAdditionalAdditions 1.31.4](https://github.com/Bithio999/TensuraAdditionalAdditions/wiki/TensuraAdditionalAdditions)
 
 Unofficial addon reference · [Source](https://github.com/Bithio999/TensuraAdditionalAdditions)

@@ -1,0 +1,15 @@
+// Native compatibility suite: all maintained gameplay review namespaces, isolated by API version.
+gradle.projectsEvaluated {
+    rootProject.sourceSets.main.java.srcDir(rootProject.file('docs/review-high-realm'))
+    rootProject.sourceSets.main.java.exclude('**/HighRealmReview.java')
+    rootProject.sourceSets.main.resources.setSrcDirs([
+        rootProject.file('docs/review-high-realm/resources'), rootProject.file('src/main/resources')
+    ])
+    rootProject.tasks.named('processResources').configure { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }
+    def fileId = rootProject.providers.gradleProperty('tensuraFileId').getOrElse('9476869')
+    def matrixRoot = rootProject.providers.gradleProperty('compatibilityRoot').getOrElse('/tmp/tensura-additions-compatibility')
+    rootProject.neoForge.runs.gameTestServer.gameDirectory = rootProject.file("${matrixRoot}/${fileId}/server")
+    rootProject.neoForge.runs.gameTestServer.systemProperty('neoforge.enabledGameTestNamespaces',
+        rootProject.providers.gradleProperty('compatibilityNamespaces').getOrElse(
+            'heavenlyrestriction,vesperreview,merchantreview,forgereview,metisreview,mentorreview,tychereview,laplacereview,netrunnerreview'))
+}

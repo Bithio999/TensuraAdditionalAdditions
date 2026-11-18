@@ -19,6 +19,7 @@
     "AirSovereigntyMasteryMixin",
     "AirSovereigntyFlightMixin",
     "AuraHealingMixin",
+    "WayfarerInfiniteRegenerationMixin",
     "IndependentDamageMixin",
     "RestrictionEnergyMixin",
     "ChainedReserveMixin",

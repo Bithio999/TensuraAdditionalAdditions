@@ -2,11 +2,11 @@
 
 Use **Tensura: Heavenly Restriction 1.1.6** with **Tensura Neo Otherworld Release-1.1.3a**.
 
-[Download the standalone addon](../../../../releases/tensura-heavenly-restriction-1.1.6.jar) · [Pack release](https://www.curseforge.com/minecraft/modpacks/tensura-neo-otherworld/files/9340459) · [Exact 263-project lock](tensura-neo-otherworld-1.1.3a.lock.json)
+[Download the standalone addon](../../../../releases/TensuraAdditionalAdditions-1.31.4.jar) · [Pack release](https://www.curseforge.com/minecraft/modpacks/tensura-neo-otherworld/files/9340459) · [Exact 263-project lock](tensura-neo-otherworld-1.1.3a.lock.json)
 
 ## Install
 
-Replace an older `tensura-heavenly-restriction-*.jar` in the pack’s `mods` folder with **1.1.6**. Keep a single standalone version installed. Update both client and server for multiplayer. The pack already provides the required libraries; its Tensura, ManasCore, NeoForge and GeckoLib versions can remain as shipped. Do not install Tensura Myths alongside the standalone.
+Replace an older `tensura-heavenly-restriction-*.jar` in the pack’s `mods` folder with **TensuraAdditionalAdditions 1.31.4**. Keep a single standalone version installed. Update both client and server for multiplayer. The pack already provides the required libraries; its Tensura, ManasCore, NeoForge and GeckoLib versions can remain as shipped. Do not install Tensura Myths alongside the standalone.
 
 Choose **Fettered Human** in the reincarnation menu. The pack also includes **Mysticism’s Restricted Human**: that is a separate race and skill system.
 
@@ -28,7 +28,7 @@ Choose **Fettered Human** in the reincarnation menu. The pack also includes **My
 
 ## Changes in 1.1.6
 
-The earlier standalone rejected Tensura 2.0.1.4 and required GeckoLib 4.9.3. The new metadata accepts the tested **Tensura 2.0.1.3–2.0.1.4** and **GeckoLib 4.9.2+ within major 4**. ManasCore remains pinned to the supported 4.0.0.2 modules. The ordinary development target remains Tensura 2.0.1.3 / NeoForge 21.1.209.
+The earlier standalone rejected Tensura 2.0.1.4 and required GeckoLib 4.9.3. The new metadata accepts the tested **Tensura 2.0.1.3–2.0.1.5** and **GeckoLib 4.9.2+ within major 4**. ManasCore remains pinned to the supported 4.0.0.2 modules. The ordinary development target is now Tensura 2.0.1.5 / NeoForge 21.1.209; the exact-pack profile retains Tensura 2.0.1.4 / NeoForge 21.1.248. [Current API validation](TENSURA-2.0.1.5.md).
 
 **Mysticism Constant Energy** and **Constant Energy Debuff** pause Chained’s converted natural regeneration. Recovery resumes when the effect ends. Optional entries in `heavenlyrestriction:pauses_energy_regeneration` avoid a hard dependency on Mysticism and let datapacks extend the pause policy.
 

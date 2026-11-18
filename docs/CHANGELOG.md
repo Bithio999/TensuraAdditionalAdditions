@@ -1,5 +1,13 @@
 # Changelog
 
+## Additions 1.31.4 — Tensura 2.0.1.5 compatibility
+
+- Support Tensura 2.0.1.5 on Minecraft 1.21.1 while retaining 2.0.1.3 and 2.0.1.4. Keep existing registry IDs and save formats.
+- Target 2.0.1.5 by default; retain the exact Neo Otherworld 1.1.3a target and add explicit dependency-version overrides for compatibility testing.
+- Check the latest native API and update supported-version documentation, dependency release hashes and distribution checks.
+- Preserve Kael's intended Infinite Regeneration on older supported Tensura versions, where the native skill applies the weaker effect. Leave 2.0.1.5's already-correct effect and ordinary entities unchanged.
+- Keep controlled test targets persistent and clean up a mentor test player to prevent natural despawning from contaminating later integration tests. Refresh the standalone content-count check for the current skill catalogue.
+
 ## Additions 1.31.3 — Native HUD handoff
 
 - Retract native status/resource panes toward their edge before fading the skill panels and sliding/fading the hotbar, matching the reference scanner sequence. Animate their return on release.

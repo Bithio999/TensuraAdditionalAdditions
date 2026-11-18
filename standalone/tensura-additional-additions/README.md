@@ -2,10 +2,10 @@
 
 An independent **Tensura: Reincarnated** addon for **Minecraft 1.21.1 / NeoForge**. It focuses on Heavenly Restriction, Battlewills and world travel.
 
-[Download 1.31.3](../../releases/TensuraAdditionalAdditions-1.31.3.jar) · [Wiki](../../wiki/pages/TensuraAdditionalAdditions.md) · [Gameplay guide](docs/GUIDE.md) · [Validation](docs/VALIDATION-1.31.3.md)
+[Download 1.31.4](../../releases/TensuraAdditionalAdditions-1.31.4.jar) · [Wiki](../../wiki/pages/TensuraAdditionalAdditions.md) · [Gameplay guide](docs/GUIDE.md) · [Validation](docs/VALIDATION-1.31.4.md)
 
 
-**New in 1.31.3:** The native HUD retracts and fades into Netrunner’s scanner, then animates back on release. [Netrunner guide](../../wiki/pages/Additions-Netrunner.md).
+**New in 1.31.4:** Updated for Tensura **2.0.1.5**, while retaining support for **2.0.1.3 and 2.0.1.4**. Existing standalone worlds need no migration.
 
 ## Content
 
@@ -46,9 +46,9 @@ Press **F8** for the in-game guide, or open it from the pause/status menus. [Dow
 
 Use **Java 21**, **Minecraft 1.21.1** and **NeoForge 21.1.209+**. Install:
 
-1. **Tensura: Reincarnated 2.0.1.3 or 2.0.1.4** and its required libraries: ManasCore 4.0.0.2, Architectury 13.0.8+, SmartBrainLib and TerraBlender.
+1. **Tensura: Reincarnated 2.0.1.3–2.0.1.5** and its required libraries: ManasCore 4.0.0.2, Architectury 13.0.8+, SmartBrainLib and TerraBlender.
 2. **GeckoLib 4.9.2+**, within the 4.x series.
-3. **TensuraAdditionalAdditions-1.31.3.jar**.
+3. **TensuraAdditionalAdditions-1.31.4.jar**.
 
 Install the addon on both client and server for multiplayer. Parallel World Jumper works only in private single-player. Use this addon **instead of Tensura Myths**; the loader rejects installing both.
 
@@ -70,7 +70,9 @@ python3 scripts/fetch-runtime.py
 ./gradlew build
 ```
 
-Use **Java 21**. Output: `build/libs/TensuraAdditionalAdditions-1.31.3.jar`.
+Use **Java 21**. Output: `build/libs/TensuraAdditionalAdditions-1.31.4.jar`.
+
+The default build targets **Tensura 2.0.1.5**. Use `-PtensuraFileId=8793360` for 2.0.1.3 or `-PtensuraFileId=9289888` for 2.0.1.4. The exact Neo Otherworld profile keeps that pack's 2.0.1.4 dependency unless explicitly overridden. [Compatibility matrix and reproduction](docs/compatibility/TENSURA-2.0.1.5.md).
 
 - `./gradlew runClient` — development client.
 - `./gradlew runGameTestServer` — native integration checks.

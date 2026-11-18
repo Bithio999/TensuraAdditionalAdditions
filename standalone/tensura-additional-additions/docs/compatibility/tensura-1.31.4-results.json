@@ -1,0 +1,42 @@
+{
+  "addonVersion": "1.31.4",
+  "minecraft": "1.21.1",
+  "java": 21,
+  "checkedDate": "2026-11-18",
+  "requiredManasCore": "4.0.0.2",
+  "apiMatrix": [
+    {
+      "tensura": "2.0.1.3",
+      "neoforge": "21.1.209",
+      "jvmTests": 136,
+      "gameTests": 489,
+      "status": "passed"
+    },
+    {
+      "tensura": "2.0.1.4",
+      "neoforge": "21.1.248",
+      "jvmTests": 136,
+      "gameTests": 489,
+      "status": "passed"
+    },
+    {
+      "tensura": "2.0.1.5",
+      "neoforge": "21.1.209",
+      "jvmTests": 136,
+      "gameTests": 489,
+      "status": "passed"
+    }
+  ],
+  "totalGameTestExecutions": 1467,
+  "nativeClient": {
+    "tensura": "2.0.1.5",
+    "neoforge": "21.1.209",
+    "status": "passed",
+    "checks": "Native skill key, scanner, MouseHandler wheel/click, two queued uploads, release continuation, target damage, GUI scales 1/2/3, six staged activation frames; animated HUD handoff/return; right-anchored panes; clean shader/scissor state."
+  },
+  "releaseBuild": "passed",
+  "distributionVerification": "passed",
+  "jarSha256": "7dbd41a4d4dc518274554ce6ea2a6705aeeedb939fac89c83a213ccd1acdb723",
+  "saveMigrationRequired": false,
+  "scope": "Maintained AdditionalAdditions; discontinued Myths is unchanged. Native API matrix uses required libraries, not the full Neo Otherworld pack."
+}

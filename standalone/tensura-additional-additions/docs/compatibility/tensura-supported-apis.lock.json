@@ -1,0 +1,32 @@
+[
+  {
+    "version": "2.0.1.5",
+    "minecraft": "1.21.1",
+    "loader": "neoforge",
+    "curseforgeFileId": "9476869",
+    "modrinthVersionId": "WuoYFS45",
+    "published": "2026-11-06T16:29:47.056433Z",
+    "url": "https://cdn.modrinth.com/data/Br0kXPwc/versions/WuoYFS45/tensura-neoforge-2.0.1.5.jar",
+    "sha512": "8ba94ad41b4bb7ae69e386037ebed801c7e55c1c719e253b93b82c7f4259e2a948c32fdac29c94c082772b155229d0a3614d692ebbe093d1477260a20d266b6a"
+  },
+  {
+    "version": "2.0.1.4",
+    "minecraft": "1.21.1",
+    "loader": "neoforge",
+    "curseforgeFileId": "9289888",
+    "modrinthVersionId": "DfQPJq9I",
+    "published": "2026-10-22T17:32:19.072969Z",
+    "url": "https://cdn.modrinth.com/data/Br0kXPwc/versions/DfQPJq9I/tensura-neoforge-2.0.1.4.jar",
+    "sha512": "bb127c86aa8f4aa0a734979587f037b86e5fc1970b85d5d8f2976eb685f80dffb3d15bc8fdde46628ae8b5a0e90254f775637b5571821901c9a5a7dd70b5ccd1"
+  },
+  {
+    "version": "2.0.1.3",
+    "minecraft": "1.21.1",
+    "loader": "neoforge",
+    "curseforgeFileId": "8793360",
+    "modrinthVersionId": "LttkLzXM",
+    "published": "2026-09-02T15:25:31.309298Z",
+    "url": "https://cdn.modrinth.com/data/Br0kXPwc/versions/LttkLzXM/tensura-neoforge-2.0.1.3.jar",
+    "sha512": "22ccde44a60853c6a91b7ec201cc3a4165c29382802660766fb5f7abcdbc50f751aca089416e2704d92bd5d01fcd990e21fc83be0859dfe3c349f6674c5ea4b4"
+  }
+]

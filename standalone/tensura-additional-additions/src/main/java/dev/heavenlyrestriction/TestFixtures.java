@@ -32,7 +32,7 @@ final class TestFixtures {
         } catch(ReflectiveOperationException ex) { throw new IllegalStateException(ex); }
     }
     static net.minecraft.world.entity.monster.Husk target(GameTestHelper h,Vec3 at){
-        var e=new net.minecraft.world.entity.monster.Husk(net.minecraft.world.entity.EntityType.HUSK,h.getLevel());e.setPos(at);e.setNoAi(true);e.setNoGravity(true);e.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1024);e.setHealth(1024);h.getLevel().addFreshEntity(e);return e;
+        var e=new net.minecraft.world.entity.monster.Husk(net.minecraft.world.entity.EntityType.HUSK,h.getLevel());e.setPos(at);e.setNoAi(true);e.setNoGravity(true);e.setPersistenceRequired();e.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1024);e.setHealth(1024);h.getLevel().addFreshEntity(e);return e;
     }
     static void afterTracking(GameTestHelper h,List<? extends LivingEntity> targets,Runnable checks){
         h.runAfterDelay(5,()->h.startSequence().thenWaitUntil(()->{for(var target:targets)h.assertTrue(h.getLevel().getEntity(target.getUUID())==target && h.getLevel().getEntitiesOfClass(LivingEntity.class,target.getBoundingBox().inflate(.1)).contains(target),"Target is not tracked yet");}).thenExecute(checks));

@@ -2,10 +2,11 @@ plugins {
     id 'java-library'
     id 'net.neoforged.moddev' version '2.0.148'
 }
-version = '1.31.3'
-// Optional exact-pack client profile; default builds retain the older supported API.
+version = '1.31.4'
+// Default to the latest supported Tensura API. The pack profile keeps its exact version;
+// explicit overrides let the compatibility matrix exercise every supported release.
 def neoOtherworldDirectory = providers.gradleProperty('neoOtherworldDirectory').orNull
-def tensuraFileId = neoOtherworldDirectory ? '9289888' : '8793360'
+def tensuraFileId = providers.gradleProperty('tensuraFileId').getOrElse(neoOtherworldDirectory ? '9289888' : '9476869')
 group = 'dev.heavenlyrestriction'
 base { archivesName = 'TensuraAdditionalAdditions' }
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
@@ -15,7 +16,7 @@ repositories {
     maven { url = 'https://maven.architectury.dev' }
 }
 neoForge {
-    version = neoOtherworldDirectory ? '21.1.248' : '21.1.209'
+    version = providers.gradleProperty('neoForgeVersion').getOrElse(neoOtherworldDirectory ? '21.1.248' : '21.1.209')
     runs {
         client { client() }
         server { server(); programArgument '--nogui' }

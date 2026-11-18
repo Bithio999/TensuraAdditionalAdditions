@@ -202,29 +202,36 @@ public final class MentorGameTests {
         h,
         List.of(npc),
         () -> {
-          MentorNetwork.open(p, npc);
-          var token = MentorNetwork.snapshot(p, "", 0).getUUID("session");
-          MentorNetwork.handle(
-              p,
-              new MentorNetwork.Request(
-                  UUID.randomUUID(),
-                  "buy",
-                  HeavenlyRestriction.PROSPECTOR.getId().toString(),
-                  "",
-                  0));
-          h.assertTrue(MentorLedger.reconcile(p).isEmpty(), "Forged nonce accepted");
-          var request =
-              new MentorNetwork.Request(
-                  token, "buy", HeavenlyRestriction.PROSPECTOR.getId().toString(), "", 0);
-          MentorNetwork.handle(p, request);
-          MentorNetwork.handle(p, request);
-          h.assertTrue(
-              has(p, HeavenlyRestriction.PROSPECTOR.get())
-                  && p.getInventory().countItem(ChromaticContent.ORB.get()) == 1,
-              "Purchase/replay handling failed");
-          var other = funded(h);
-          MentorNetwork.handle(other, request);
-          h.assertTrue(MentorLedger.reconcile(other).isEmpty(), "Another player reused session");
+          try {
+            MentorNetwork.open(p, npc);
+            var token = MentorNetwork.snapshot(p, "", 0).getUUID("session");
+            MentorNetwork.handle(
+                p,
+                new MentorNetwork.Request(
+                    UUID.randomUUID(),
+                    "buy",
+                    HeavenlyRestriction.PROSPECTOR.getId().toString(),
+                    "",
+                    0));
+            h.assertTrue(MentorLedger.reconcile(p).isEmpty(), "Forged nonce accepted");
+            var request =
+                new MentorNetwork.Request(
+                    token, "buy", HeavenlyRestriction.PROSPECTOR.getId().toString(), "", 0);
+            MentorNetwork.handle(p, request);
+            MentorNetwork.handle(p, request);
+            h.assertTrue(
+                has(p, HeavenlyRestriction.PROSPECTOR.get())
+                    && p.getInventory().countItem(ChromaticContent.ORB.get()) == 1,
+                "Purchase/replay handling failed");
+            var other = funded(h);
+            MentorNetwork.handle(other, request);
+            h.assertTrue(MentorLedger.reconcile(other).isEmpty(), "Another player reused session");
+          } finally {
+            h.getLevel()
+                .removePlayerImmediately(
+                    p, net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
+            npc.discard();
+          }
           h.succeed();
         });
   }

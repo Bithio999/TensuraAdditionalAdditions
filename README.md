@@ -2,16 +2,16 @@
 
 An active addon for **Tensura: Reincarnated**, **Minecraft 1.21.1** and **NeoForge**.
 
-[Download 1.31.3](releases/TensuraAdditionalAdditions-1.31.3.jar) · [Gameplay wiki](wiki/pages/TensuraAdditionalAdditions.md) · [Development guide](standalone/tensura-additional-additions/README.md) · [Validation](standalone/tensura-additional-additions/docs/VALIDATION-1.31.3.md)
+[Download 1.31.4](releases/TensuraAdditionalAdditions-1.31.4.jar) · [Gameplay wiki](wiki/pages/TensuraAdditionalAdditions.md) · [Development guide](standalone/tensura-additional-additions/README.md) · [Validation](standalone/tensura-additional-additions/docs/VALIDATION-1.31.4.md)
 
 Heavenly Restriction and its race evolutions, Chained/Unbound, Battlewills, Inverted Spear of Heaven, Unique and Ultimate skills, Marauder’s Map, Fusion, Parallel World Jumper, The High Realm and its encounters, Chromatic Orb, Vesper and the Archive of Accord.
 
 
-**New in 1.31.3:** The native HUD retracts and fades into Netrunner’s scanner, then animates back on release. [Netrunner guide](wiki/pages/Additions-Netrunner.md).
+**New in 1.31.4:** Updated for Tensura **2.0.1.5**, while retaining support for **2.0.1.3 and 2.0.1.4**. Existing standalone worlds need no migration.
 
 ## Install
 
-Use **Java 21**, **Tensura 2.0.1.3 or 2.0.1.4**, its required libraries (ManasCore, Architectury, SmartBrainLib and TerraBlender), and **GeckoLib 4.9.2+**. Put the addon JAR in your instance’s `mods` folder. Install matching versions on client and server. **Parallel World Jumper is private single-player only.**
+Use **Java 21**, **Tensura 2.0.1.3–2.0.1.5**, its required libraries (ManasCore, Architectury, SmartBrainLib and TerraBlender), and **GeckoLib 4.9.2+**. Put the addon JAR in your instance’s `mods` folder. Install matching versions on client and server. **Parallel World Jumper is private single-player only.**
 
 Supports [Tensura Neo Otherworld 1.1.3a](standalone/tensura-additional-additions/docs/compatibility/NEO-OTHERWORLD-1.1.3a.md). Do not install AdditionalAdditions together with the discontinued Myths distribution.
 
